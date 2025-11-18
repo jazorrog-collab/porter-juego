@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Juego: Michael Porter — Estrategia y Puzzles</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f3f6ff;--card:#ffffff;--primary:#112b57;--accent:#2b6ef6;--muted:#6b7280}
+  *{box-sizing:border-box;font-family:Inter,Arial,Helvetica,sans-serif}
+  body{margin:0;background:linear-gradient(180deg,#eef3ff 0%, #ffffff 100%);color:#0b1220}
+  .wrap{max-width:980px;margin:28px auto;padding:20px}
+  header{display:flex;align-items:center;justify-content:space-between}
+  h1{margin:0;color:var(--primary);font-size:20px}
+  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 20px rgba(17,43,87,0.06);margin-top:18px}
+  .row{display:flex;gap:14px}
+  .col{flex:1}
+  .btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(17,43,87,0.06)}
+  .muted{color:var(--muted);font-size:14px}
+  #startMenu .columns{display:flex;gap:12px;flex-wrap:wrap}
+  .infoButtons button{display:block;width:100%;margin:6px 0;text-align:left;padding:10px;border-radius:8px}
+  .center{display:flex;justify-content:center}
+  .question{font-weight:600;margin-bottom:10px}
+  .options{display:flex;flex-direction:column;gap:8px}
+  .option{background:#f1f5ff;padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+  .option:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(43,110,246,0.08)}
+  #timer{font-weight:700;color:crimson}
+  .helpBtn{background:#f6d365;color:#7c4a00;padding:8px 12px;border-radius:8px;border:none}
+  .small{font-size:13px}
+  /* drag & drop */
+  .match-area{display:flex;gap:18px;align-items:flex-start}
+  .match-col{flex:1}
+  .dropzone{min-height:120px;border:2px dashed #e6eefc;border-radius:10px;padding:12px;background:#fbfdff}
+  .cardItem{background:#eef6ff;padding:8px;border-radius:8px;margin:8px 0;cursor:grab}
+  .placed{background:#dff3e6}
+  /* final board */
+  #finalBoard canvas{max-width:100%}
+  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Juego educativo: Michael Porter — Estrategia</h1>
+    <div class="muted">Interacción: selección múltiple + puzzles drag & drop (emparejar)</div>
+  </header>
+
+  <!-- START MENU / INTERACTIVE INFO -->
+  <section id="startMenu" class="card">
+    <div class="row">
+      <div class="col">
+        <h2 style="margin:0 0 8px 0">Introducción interactiva</h2>
+        <div class="infoButtons">
+          <button class="btn ghost" onclick="showLife()">Breve: Vida de Michael Porter</button>
+          <button class="btn ghost" onclick="showWorks()">Obras y conceptos clave</button>
+          <button class="btn ghost" onclick="showPubs()">Publicaciones principales</button>
+        </div>
+      </div>
+      <div class="col">
+        <h3 style="margin-top:0">Resúmenes</h3>
+        <div id="infoPanel" class="muted small">Haz clic en cualquiera de las opciones para ver una explicación interactiva. Las palabras destacadas se integran luego en el quiz.</div>
+        <div style="margin-top:12px" class="center">
+          <button class="btn" onclick="startGame()">Comenzar juego</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ / TIMER / HELP -->
+  <section id="quizSection" class="card" style="display:none;margin-top:18px">
+    <div class="row" style="align-items:center">
+      <div class="col">
+        <div id="questionBox">
+          <!-- pregunta se inyecta aquí -->
+        </div>
+      </div>
+      <div style="width:180px;text-align:right">
+        <div class="muted small">Cronómetro</div>
+        <div id="timer">0s</div>
+        <div style="height:10px"></div>
+        <div class="muted small">Ayudas restantes</div>
+        <div><button id="helpBtn" class="helpBtn" onclick="useHelp()">Usar ayuda (3)</button></div>
+        <div style="height:8px"></div>
+        <div class="muted small">Puntaje</div>
+        <div id="scorePanel">0.00</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUZZLES SEQUENCE -->
+  <section id="puzzleSection" class="card" style="display:none;margin-top:18px">
+    <h3>Sección de Puzzles (emparejar)</h3>
+    <div id="puzzleContainer"></div>
+  </section>
+
+  <!-- FINAL BOARD -->
+  <section id="finalBoard" class="card" style="display:none;margin-top:18px">
+    <h3>Resultados finales</h3>
+    <canvas id="chartCanvas" width="600" height="300"></canvas>
+    <p class="muted small">Desglose: preguntas correctas, bonus por rapidez, puntos por puzzles.</p>
+    
+    <div style="margin-top:12px" id="finalScores"></div>
+  </section>
+
+  <footer class="muted small">Consejo: subir el archivo a GitHub Pages o Netlify para compartir un link público.</footer>
+</div>
+
+<script>
+/* ----------------- Datos de contenido (vida, obras, publicaciones) ----------------- */
+const LIFE = `Michael Eugene Porter (n. 1947) es profesor de la Escuela de Negocios de Harvard. Se formó en Princeton y Harvard. Su trabajo, desde finales de los 70 y 80, transformó la disciplina de la estrategia empresarial y la forma de analizar industrias y ventaja competitiva.`;
+const WORKS = `Conceptos clave: Las <b>5 Fuerzas</b> (rivalidad, proveedores, compradores, sustitutos, nuevos entrantes); <b>Cadena de Valor</b>; <b>Estrategias Genéricas</b> (liderazgo en costos, diferenciación, enfoque); <b>Diamante de la competitividad</b>.`;
+const PUBS = `Obras destacadas: "Competitive Strategy" (1980), "Competitive Advantage" (1985), artículos en Harvard Business Review sobre ventaja competitiva y clusters económicos.`;
+
+function showLife(){ document.getElementById('infoPanel').innerHTML = LIFE; }
+function showWorks(){ document.getElementById('infoPanel').innerHTML = WORKS; }
+function showPubs(){ document.getElementById('infoPanel').innerHTML = PUBS; }
+
+/* ----------------- Preguntas (multiple choice) ----------------- */
+const QUESTIONS = [
+  { q: '¿Cuántas fuerzas incluye el modelo de Porter?', opts:['3','5','7'], correct:1, ref:'5 Fuerzas' },
+  { q: '¿Cuál NO es una estrategia genérica según Porter?', opts:['Diferenciación','Liderazgo en costos','Innovación disruptiva'], correct:2, ref:'Estrategias Genéricas' },
+  { q: '¿Qué analiza la cadena de valor?', opts:['Actividades que añaden valor','Clima laboral','Estructura de costes fiscales'], correct:0, ref:'Cadena de Valor' },
+  { q: '¿En qué década se publicó "Competitive Strategy"?', opts:['1960s','1980s','1990s'], correct:1, ref:'Publicaciones' },
+  { q: '¿Cuál de estos es una fuerza del modelo?', opts:['Poder de negociación de proveedores','Tasa de inflación','Política monetaria'], correct:0, ref:'5 Fuerzas' },
+  { q: 'El Diamante de la competitividad explica:', opts:['Ventaja nacional','Estrategia personal','Cálculo de impuestos'], correct:0, ref:'Works' },
+  { q: 'Una ventaja competitiva puede venir de:', opts:['Bajos costos o diferenciación','Evitar competencia','Aumentar precios sin valor'], correct:0, ref:'Competitive Advantage' },
+  { q: 'La cadena de valor separa actividades en:', opts:['Primarias y de apoyo','Departamentos y sueldos','Clientes y proveedores'], correct:0, ref:'Cadena de Valor' },
+  { q: '¿Qué mide el poder de los compradores?', opts:['Capacidad para presionar precios','Velocidad de internet','Calidad del aire'], correct:0, ref:'5 Fuerzas' },
+  { q: 'Porter enseñó sobre clusters. ¿Qué es un cluster?', opts:['Concentración geográfica de empresas','Un solo monopolio','Un tipo de contrato'], correct:0, ref:'Works' }
+];
+
+/* ----------------- Puntuación y tiempo ----------------- */
+let currentQuestion = 0;
+let startTime = null; // juego
+let questionStart = null; // por pregunta
+let elapsedTimer = null;
+let totalScore = 0; // float
+let questionScore = 0; // acumulado por preguntas
+let puzzleScore = 0; // acumulado por puzzles
+let helpRemaining = 3;
+
+// time-based bonus logic (por pregunta):
+// Base 1.0 punto por respuesta correcta.
+// Bonus por rapidez: hasta +0.8 puntos. Se calcula como: bonus = max(0, (30 - t)/30) * 0.8, donde t = segundos en responder (cap 30s).
+// Usar ayuda resta 0.5 puntos si se compra extra; usar una ayuda disponible reduce el bonus a la mitad para esa pregunta.
+
+function startGame(){
+  document.getElementById('startMenu').style.display = 'none';
+  document.getElementById('quizSection').style.display = 'block';
+  startTime = Date.now();
+  currentQuestion = 0; totalScore = 0; questionScore = 0; puzzleScore = 0; helpRemaining = 3;
+  document.getElementById('helpBtn').innerText = `Usar ayuda (${helpRemaining})`;
+  showQuestion();
+  elapsedTimer = setInterval(()=>{
+    const s = Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('timer').innerText = s+ 's';
+  },1000);
+}
+
+function showQuestion(){
+  const q = QUESTIONS[currentQuestion];
+  questionStart = Date.now();
+  const box = document.getElementById('questionBox');
+  box.innerHTML = `<div class='question'>${q.q}</div>`;
+  const opts = document.createElement('div'); opts.className='options';
+  q.opts.forEach((o,i)=>{
+    const b = document.createElement('div'); b.className='option'; b.innerText = o; b.onclick = ()=> selectOption(i);
+    opts.appendChild(b);
+  });
+  // show reference hint toggle
+  const ref = document.createElement('div'); ref.className='muted small'; ref.style.marginTop='8px'; ref.innerHTML = `Relacionado: <b>${q.ref}</b>`;
+  box.appendChild(opts); box.appendChild(ref);
+}
+
+function selectOption(i){
+  const q = QUESTIONS[currentQuestion];
+  const tSec = (Date.now()-questionStart)/1000;
+  const base = (i===q.correct)?1:0;
+  let bonus = 0;
+  if(base===1){ bonus = Math.max(0,(30 - Math.min(30,tSec))/30) * 0.8; }
+  // if help was used for this question (tracked by data attribute) reduce bonus
+  const usedHelpFlag = document.getElementById('questionBox').dataset.usedhelp==='true';
+  if(usedHelpFlag) bonus = bonus/2;
+  const gained = base + bonus;
+  if(base===0 && document.getElementById('questionBox').dataset.usedhelp==='true'){
+    // penalty for using help and answering wrong
+    totalScore -= 0.2; // small penalty
+  }
+  totalScore += gained; questionScore += gained;
+  // reset usedhelp flag
+  document.getElementById('questionBox').dataset.usedhelp='false';
+
+  currentQuestion++;
+  if(currentQuestion >= QUESTIONS.length){
+    // move to puzzles
+    clearInterval(elapsedTimer);
+    document.getElementById('quizSection').style.display='none';
+    startPuzzles();
+  } else {
+    showQuestion();
+  }
+  updateScorePanel();
+}
+
+function useHelp(){
+  // if helps remain, provide a hint (eliminate one incorrect option)
+  if(helpRemaining>0){
+    helpRemaining--; document.getElementById('helpBtn').innerText = `Usar ayuda (${helpRemaining})`;
+    // reveal a wrong option by dimming one
+    const q = QUESTIONS[currentQuestion];
+    // find an incorrect index to disable
+    const wrongIdx = q.opts.findIndex((_,i)=> i!==q.correct);
+    const opts = document.querySelectorAll('#questionBox .option');
+    if(opts[wrongIdx]) opts[wrongIdx].style.opacity=0.45;
+    // mark that help was used (affects bonus)
+    document.getElementById('questionBox').dataset.usedhelp='true';
+  } else {
+    // offer to buy more helps for 0.5 points
+    if(totalScore >= 0.5){ if(confirm('Comprar 1 ayuda por 0.5 puntos?')){ totalScore -= 0.5; helpRemaining = 1; document.getElementById('helpBtn').innerText = `Usar ayuda (${helpRemaining})`; updateScorePanel(); } }
+    else alert('No tienes puntos suficientes para comprar más ayudas (0.5 puntos).');
+  }
+}
+
+function updateScorePanel(){ document.getElementById('scorePanel').innerText = totalScore.toFixed(2); }
+
+/* ----------------- Puzzles: 5 matching puzzles (drag & drop pairing) ----------------- */
+const MATCH_PUZZLES = [
+  { id:'p1', title:'Empareja 5 Fuerzas con su descripción', pairs:[ ['Rivalidad entre competidores','Intensidad de competencia'], ['Poder proveedores','Influye en costos'], ['Poder compradores','Presionan precios'] ] },
+  { id:'p2', title:'Empareja actividad (Primaria / Apoyo)', pairs:[ ['Operaciones','Primaria'], ['Recursos Humanos','Apoyo'], ['Logística externa','Primaria'] ] },
+  { id:'p3', title:'Empareja obra → año (ejemplo)', pairs:[ ['Competitive Strategy','1980'], ['Competitive Advantage','1985'] ] },
+  { id:'p4', title:'Empareja concepto → definición', pairs:[ ['Diferenciación','Hacer único el producto'], ['Liderazgo en costos','Ser el de menor costo'] ] },
+  { id:'p5', title:'Empareja término → ejemplo', pairs:[ ['Sustituto','Servicios de streaming'], ['Entrante','Startup fintech'] ] }
+];
+let currentPuzzle = 0; let puzzleTimerStart = 0; let puzzleCorrectPairs = 0;
+
+function startPuzzles(){ document.getElementById('puzzleSection').style.display='block'; currentPuzzle=0; puzzleScore=0; loadPuzzle(); }
+
+function loadPuzzle(){
+  const p = MATCH_PUZZLES[currentPuzzle];
+  const container = document.getElementById('puzzleContainer');
+  container.innerHTML = `<div><strong>${p.title}</strong></div>`;
+  // create left column (terms) draggable and right column targets
+  const matchArea = document.createElement('div'); matchArea.className='match-area';
+  const left = document.createElement('div'); left.className='match-col';
+  const right = document.createElement('div'); right.className='match-col';
+  // shuffle terms and targets
+  const terms = p.pairs.map(pair=>pair[0]).sort(()=>Math.random()-0.5);
+  const targets = p.pairs.map(pair=>pair[1]).sort(()=>Math.random()-0.5);
+  terms.forEach((t,i)=>{ const it=document.createElement('div'); it.className='cardItem'; it.draggable=true; it.id='term-'+i; it.dataset.term=t; it.innerText=t; it.ondragstart=dragStart; left.appendChild(it); });
+  targets.forEach((tar,i)=>{ const zone=document.createElement('div'); zone.className='dropzone'; zone.id='target-'+i; zone.dataset.target=tar; zone.ondragover=dragOver; zone.ondrop=dropItem; zone.innerHTML=`<div class='muted small'>${tar}</div>`; right.appendChild(zone); });
+  matchArea.appendChild(left); matchArea.appendChild(right); container.appendChild(matchArea);
+  // control buttons
+  const btns=document.createElement('div'); btns.style.marginTop='12px'; btns.innerHTML=`<button class='btn' onclick='checkCurrentPuzzle()'>Verificar puzzle</button>`;
+  container.appendChild(btns);
+  puzzleTimerStart = Date.now(); puzzleCorrectPairs=0;
+}
+
+function dragStart(ev){ ev.dataTransfer.setData('text/plain', ev.target.id); }
+function dragOver(ev){ ev.preventDefault(); }
+function dropItem(ev){ ev.preventDefault(); const id = ev.dataTransfer.getData('text/plain'); const node = document.getElementById(id); if(node && ev.currentTarget.classList.contains('dropzone')){
+  // append copy to drop zone (and disable original)
+  ev.currentTarget.appendChild(node);
+  node.classList.add('placed');
+ }}
+
+function checkCurrentPuzzle(){
+  const p = MATCH_PUZZLES[currentPuzzle];
+  const targets = Array.from(document.querySelectorAll('#puzzleContainer .dropzone'));
+  let correct = 0;
+  targets.forEach((tZone, idx)=>{
+    const child = tZone.querySelector('.cardItem');
+    if(child){
+      const term = child.dataset.term;
+      // find match in pairs
+      const found = p.pairs.find(pair=> pair[0]===term && pair[1]===tZone.dataset.target);
+      if(found) correct++;
+    }
+  });
+  // scoring: each correct pair gives 2 points + time bonus (faster => +0.5 per pair max)
+  const timeSec = (Date.now()-puzzleTimerStart)/1000;
+  const perPairBase = 2;
+  const perPairBonus = Math.max(0, (60 - Math.min(60,timeSec))/60) * 0.5; // up to 0.5
+  const gained = correct * (perPairBase + perPairBonus);
+  puzzleScore += gained; totalScore += gained; updateScorePanel();
+  currentPuzzle++;
+  if(currentPuzzle >= MATCH_PUZZLES.length) finishGame(); else loadPuzzle();
+}
+
+function finishGame(){
+  document.getElementById('puzzleSection').style.display='none';
+  document.getElementById('finalBoard').style.display='block';
+  const t = Math.floor((Date.now()-startTime)/1000);
+  // render chart: use simple canvas bar drawing (no external libs needed)
+  renderFinalChart();
+  document.getElementById('finalScores').innerHTML = `<p>Puntaje total: <b>${totalScore.toFixed(2)}</b></p><p>Tiempo total: <b>${t}s</b></p>`;
+}
+
+function renderFinalChart(){
+  const canvas = document.getElementById('chartCanvas'); const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const qPoints = Math.max(0,totalScore - puzzleScore);
+  const pPoints = puzzleScore;
+  const total = qPoints + pPoints;
+  const labels = ['Preguntas','Puzzles'];
+  const values = [qPoints,pPoints];
+  const colors = ['#2b6ef6','#1db954'];
+  // draw bars
+  const padding=60; const barWidth=100; const maxVal = Math.max(...values,1);
+  values.forEach((v,i)=>{
+    const h = (v/maxVal) * (canvas.height - 140);
+    const x = padding + i*(barWidth+60);
+    const y = canvas.height - 60 - h;
+    ctx.fillStyle = colors[i]; ctx.fillRect(x,y,barWidth,h);
+    ctx.fillStyle='#000'; ctx.fillText(labels[i], x, canvas.height - 40);
+    ctx.fillText(v.toFixed(1), x, y-8);
+  });
+}
+
+/* ----------------- Hosting: preparar carpeta (simple) ----------------- */
+function downloadPackage(){
+  alert('Para hosting: sube este archivo (index.html) a GitHub Pages o Netlify. Si quieres que lo haga yo, puedo generarte un zip listo para descargar.');
+}
+
+/* Accessibility: keyboard support simplified */
+</script>
+</body>
+</html>
