@@ -1,472 +1,313 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Evaluación de las 5 Fuerzas de Porter</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Michael Porter</title>
 
 <style>
     body {
+        font-family: Arial, sans-serif;
+        background: #0d1b2a;
+        color: white;
         margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #f2f2f2;
         padding: 0;
         text-align: center;
     }
 
-    h1 {
-        background: #003366;
-        color: white;
-        padding: 20px;
-        margin: 0 0 20px 0;
-    }
+    h1, h2 { color: #e0e1dd; }
 
-    #contenedor {
-        width: 90%;
+    .container {
+        max-width: 780px;
         margin: auto;
-        max-width: 900px;
+        padding: 20px;
     }
 
     button {
+        background: #1b263b;
+        color: white;
         padding: 12px 20px;
-        margin: 10px;
         border: none;
-        border-radius: 6px;
-        background: #0055aa;
-        color: white;
+        border-radius: 8px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: 0.2s;
+        width: 90%;
         font-size: 16px;
-        cursor: pointer;
-        transition: 0.2s;
     }
 
-    button:hover {
-        background: #003f7d;
+    button:hover { background: #415a77; }
+
+    .start-btn { background: #778da9; font-size: 20px; }
+
+    .option {
+        background: #1b263b;
+        border: 2px solid #415a77;
     }
 
-    .btn-sec {
-        background: #777;
-    }
-    .btn-sec:hover {
-        background: #555;
-    }
+    .correct { background: #2d6a4f !important; }
+    .incorrect { background: #9d0208 !important; }
 
-    #infoTexto {
-        padding: 15px;
-        background: white;
-        border-radius: 10px;
-        margin-bottom: 20px;
+    #quiz-screen, #final-screen, #info-screen {
         display: none;
-        text-align: left;
+        animation: fade 0.5s ease;
     }
 
-    #quiz {
-        display: none;
+    @keyframes fade {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    .pregunta {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    .opcion {
-        display: block;
-        width: 100%;
-        text-align: left;
-        max-width: 600px;
-        margin: 10px auto;
-        padding: 12px;
-        background: white;
-        border-radius: 8px;
-        border: 2px solid #ccc;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .opcion:hover {
-        background: #e9e9e9;
-    }
-
-    #ayudaTexto {
-        margin-top: 10px;
-        padding: 10px;
-        background: #fff5cc;
-        border-left: 5px solid #ffcc00;
-        display: none;
-    }
-
-    #final {
-        display: none;
-        padding: 20px;
-        background: white;
-        border-radius: 12px;
-    }
-
-    #cronometro {
+    #timer {
         font-size: 22px;
-        font-weight: bold;
+        padding: 10px;
         margin-bottom: 10px;
-        background: #003366;
-        color: white;
-        display: inline-block;
-        padding: 6px 14px;
+        color: #fcca46;
+    }
+
+    #hint-box {
+        background: #003049;
+        padding: 12px;
+        margin: 10px 0;
         border-radius: 8px;
+        display: none;
     }
 </style>
 </head>
+
 <body>
 
-<h1>Evaluación – Las 5 Fuerzas de Porter</h1>
+<div class="container" id="start-screen">
+    <h1>Juego de Michael Porter</h1>
+    <p>Aprende sobre estrategia competitiva, ventajas, fuerzas competitivas
+       y conceptos clave del pensamiento de Porter.</p>
 
-<div id="contenedor">
+    <button class="start-btn" onclick="startGame()">Iniciar juego</button>
+    <br>
 
-    <button onclick="mostrarInfo('bibliografia')">Bibliografía</button>
-    <button onclick="mostrarInfo('obras')">Obras</button>
-    <button onclick="mostrarInfo('publicaciones')">Publicaciones</button>
-
-    <div id="infoTexto"></div>
-
-    <button onclick="iniciarQuiz()">Iniciar Evaluación</button>
-
-    <div id="quiz">
-        <div id="cronometro">00:00</div>
-        <div id="pregunta" class="pregunta"></div>
-
-        <div id="opciones"></div>
-
-        <button class="btn-sec" onclick="usarAyuda()">Ayuda (3)</button>
-        <div id="ayudaTexto"></div>
-    </div>
-
-    <div id="final">
-        <h2>¡Has completado la evaluación!</h2>
-        <p id="puntajeFinal"></p>
-        <p id="tiempoFinal"></p>
-        <button onclick="location.reload()">Reiniciar</button>
-    </div>
-
+    <button onclick="showInfo('bio')">Biografía</button>
+    <button onclick="showInfo('works')">Obras</button>
+    <button onclick="showInfo('pubs')">Publicaciones</button>
 </div>
 
-<!-- SONIDOS -->
-<audio id="sonidoCorrecto" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
-<audio id="sonidoIncorrecto" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-buzz-954.mp3"></audio>
-<audio id="sonidoAyuda" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-positive-notification-955.mp3"></audio>
-<audio id="sonidoMeta" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"></audio>
+<!-- SECCIÓN DE INFORMACIÓN -->
+<div class="container" id="info-screen">
+    <h2 id="info-title"></h2>
+    <p id="info-text"></p>
+    <button onclick="goHome()">Volver</button>
+</div>
+
+<!-- QUIZ -->
+<div class="container" id="quiz-screen">
+    <div id="timer">00:00</div>
+    <h2 id="question"></h2>
+    <div id="options"></div>
+
+    <div id="hint-box"></div>
+
+    <button onclick="useHint()">Usar pista (3 disponibles)</button>
+</div>
+
+<!-- PANTALLA FINAL -->
+<div class="container" id="final-screen">
+    <h1>¡Juego completado!</h1>
+    <h2 id="final-score"></h2>
+    <button onclick="location.reload()">Jugar de nuevo</button>
+</div>
+
+<!-- AUDIOS -->
+<audio id="sound-correct" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+<audio id="sound-wrong" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-buzz-950.mp3"></audio>
+<audio id="sound-end" src="https://assets.mixkit.co/sfx/preview/mixkit-level-completed-2059.mp3"></audio>
 
 <script>
-/* ─────────────────────────────────────────
-   SECCIONES INFORMATIVAS
-────────────────────────────────────────── */
-function mostrarInfo(tipo) {
-    const div = document.getElementById("infoTexto");
+/* ---------------------- INFO ---------------------------- */
+const infoData = {
+    bio: {
+        title: "Biografía de Michael Porter",
+        text: "Michael E. Porter es profesor de la Universidad de Harvard y uno de los pensadores más influyentes en estrategia moderna. Es reconocido por su modelo de las 5 fuerzas, el concepto de ventaja competitiva y el análisis de clusters. Porter transformó el estudio de la competencia empresarial al introducir un enfoque estructural basado en la industria. Sus investigaciones abarcan competitividad nacional, valor compartido, cadenas de valor y desarrollo económico. Ha asesorado a múltiples gobiernos y corporaciones globales y es considerado el padre de la estrategia competitiva contemporánea."
+    },
+    works: {
+        title: "Principales Obras de Michael Porter",
+        text: "Las obras más destacadas de Porter incluyen 'Competitive Strategy' (1980), donde introduce las 5 fuerzas; 'Competitive Advantage' (1985), donde presenta la cadena de valor; y 'The Competitive Advantage of Nations' (1990), donde analiza la competitividad a nivel país. También desarrolló el concepto del diamante competitivo y escribió sobre responsabilidad social empresarial, clusters económicos y valor compartido. Sus libros han sido traducidos a más de 20 idiomas y se utilizan en escuelas de negocio en todo el mundo."
+    },
+    pubs: {
+        title: "Publicaciones Relevantes",
+        text: "Entre las publicaciones más influyentes de Porter están artículos como 'What is Strategy?' publicado en Harvard Business Review, uno de los artículos más leídos en la historia de la revista. También destacan sus investigaciones sobre valor compartido, sistemas de salud, competitividad regional y medición de la productividad. Su trabajo continúa siendo referencia obligatoria en estrategia, políticas públicas y economía empresarial."
+    }
+};
 
-    const textos = {
-        bibliografia: `
-        <h3>Bibliografía</h3>
-        <p>Michael E. Porter es uno de los académicos más influyentes en el campo de la estrategia empresarial. Su trayectoria inicia en la Universidad de Harvard, donde desarrolló modelos fundamentales para comprender la competitividad. Entre sus principales contribuciones se encuentra el modelo de las Cinco Fuerzas, una de las herramientas más utilizadas para analizar industrias y mercados. Su bibliografía abarca obras relacionadas con competitividad nacional, clústeres productivos, estrategia corporativa y políticas públicas de desarrollo económico. Ha trabajado con gobiernos y organizaciones internacionales para mejorar la productividad, aplicando principios estratégicos a la economía territorial. Su enfoque siempre ha buscado unir rigurosidad analítica con utilidad práctica.</p>
-        `,
-        obras: `
-        <h3>Obras Reconocidas</h3>
-        <p>Porter ha escrito obras que han transformado la forma en que las empresas entienden la competencia. Su libro más influyente, “Competitive Strategy” (1980), introdujo conceptos como la rivalidad, las barreras de entrada y los sustitutos. Posteriormente, con “Competitive Advantage” (1985), profundizó en cómo las empresas pueden crear y sostener ventajas estratégicas. “The Competitive Advantage of Nations” (1990) amplía el análisis a economías completas, introduciendo el famoso “diamante de Porter”. Cada una de estas obras ha sido traducida a múltiples idiomas y sigue siendo referencia obligatoria en escuelas de negocios. Hoy, sus ideas continúan guiando decisiones estratégicas en sectores empresariales y gubernamentales.</p>
-        `,
-        publicaciones: `
-        <h3>Publicaciones Destacadas</h3>
-        <p>Michael Porter ha producido artículos influyentes que han redefinido conceptos clave en la estrategia empresarial. Entre ellos destaca “What is Strategy?”, un artículo que diferencia claramente entre eficiencia operativa y estrategia competitiva. También es ampliamente reconocido “Creating Shared Value”, donde propone que las empresas pueden generar beneficios económicos creando simultáneamente valor social. Sus publicaciones abarcan también temas como sistemas de salud, competitividad nacional y responsabilidad corporativa. Muchos de sus artículos han sido publicados en Harvard Business Review y son usados como referencia en programas de formación ejecutiva, escuelas de negocios y consultoría especializada en estrategia.</p>
-        `
-    };
-
-    div.innerHTML = textos[tipo];
-    div.style.display = "block";
+function showInfo(type) {
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("info-screen").style.display = "block";
+    document.getElementById("info-title").innerText = infoData[type].title;
+    document.getElementById("info-text").innerText = infoData[type].text;
 }
 
-/* ─────────────────────────────────────────
-   QUIZ – PREGUNTAS
-────────────────────────────────────────── */
+function goHome() {
+    document.getElementById("info-screen").style.display = "none";
+    document.getElementById("start-screen").style.display = "block";
+}
 
-const preguntas = [
-    {
-        pregunta: "¿Cuál es el objetivo principal del modelo de las 5 Fuerzas de Porter?",
-        opciones: [
-            "Analizar la estructura competitiva de una industria",
-            "Determinar la rentabilidad individual de una empresa",
-            "Evaluar el desempeño financiero anual",
-            "Medir la lealtad de los clientes"
-        ],
-        correcta: 0,
-        pista: "Sirve para entender qué tan atractiva es una industria."
-    },
+/* ------------------------ PREGUNTAS ---------------------------- */
 
-    {
-        pregunta: "¿Qué factor aumenta la rivalidad entre competidores?",
-        opciones: [
-            "Mercado saturado con productos similares",
-            "Altas barreras de entrada",
-            "Clientes con poca información",
-            "Proveedores muy diversos"
-        ],
-        correcta: 0,
-        pista: "Mientras más luchan por los mismos clientes, mayor es la rivalidad."
-    },
+const questions = [
+    { q: "¿Cuál es uno de los aportes más conocidos de Michael Porter?",
+      options: ["Las 5 fuerzas", "Las 3R", "Matriz BCG"],
+      answer: 0,
+      hint: "Sirve para analizar el nivel de competencia." },
 
-    {
-        pregunta: "¿Qué aumenta el poder de negociación de los clientes?",
-        opciones: [
-            "Existen muchas alternativas para ellos",
-            "La oferta es limitada",
-            "El proveedor es dominante",
-            "Los productos son altamente diferenciados"
-        ],
-        correcta: 0,
-        pista: "Si hay varias opciones, tienen poder de elegir."
-    },
+    { q: "¿Qué representa la cadena de valor?",
+      options: ["Actividades internas", "Estados financieros", "Ventas mensuales"],
+      answer: 0,
+      hint: "Describe cómo la empresa crea valor paso a paso." },
 
-    {
-        pregunta: "¿Qué condición incrementa la amenaza de nuevos entrantes?",
-        opciones: [
-            "Bajas barreras de entrada",
-            "Alta inversión inicial",
-            "Regulaciones estrictas",
-            "Economías de escala fuertes"
-        ],
-        correcta: 0,
-        pista: "Cuanto más fácil entrar, mayor la amenaza."
-    },
+    { q: "¿Qué busca la estrategia competitiva?",
+      options: ["Ser diferente", "Imitar al rival", "Reducir marketing"],
+      answer: 0,
+      hint: "La diferenciación es clave." },
 
-    {
-        pregunta: "¿Qué define a un producto sustituto?",
-        opciones: [
-            "Satisface la misma necesidad de forma diferente",
-            "Es vendido por la misma empresa",
-            "Es un accesorio del producto principal",
-            "Solo existe en mercados externos"
-        ],
-        correcta: 0,
-        pista: "Ofrece una alternativa indirecta."
-    },
+    { q: "Una fuerza del modelo de Porter es:",
+      options: ["Rivalidad", "Cultura", "Tamaño"],
+      answer: 0,
+      hint: "Es la competencia entre empresas del mismo sector." },
 
-    {
-        pregunta: "¿Cuál situación reduce el poder de los proveedores?",
-        opciones: [
-            "Existen múltiples proveedores disponibles",
-            "El proveedor es único",
-            "Los insumos son altamente especializados",
-            "Los costos de cambio son elevados"
-        ],
-        correcta: 0,
-        pista: "Cuantas más opciones tengas, menos poder tienen ellos."
-    },
+    /* --- 11 preguntas nuevas --- */
+    { q: "El poder de negociación de proveedores evalúa:",
+      options: ["Su influencia en costos", "El clima", "Ventas globales"],
+      answer: 0,
+      hint: "Afecta los precios y la disponibilidad." },
 
-    {
-        pregunta: "¿Qué elemento intensifica la competencia?",
-        opciones: [
-            "Crecimiento lento del mercado",
-            "Altos costos de salida",
-            "Alta diferenciación",
-            "Fuerte fidelidad de los clientes"
-        ],
-        correcta: 0,
-        pista: "Si el mercado no crece, se pelea por los mismos clientes."
-    },
+    { q: "La amenaza de sustitutos implica:",
+      options: ["Productos alternos", "Empleados nuevos", "Oficinas"],
+      answer: 0,
+      hint: "Un ejemplo son apps vs taxis." },
 
-    {
-        pregunta: "¿Qué factor reduce la amenaza de nuevos entrantes?",
-        opciones: [
-            "Patentes y propiedad intelectual",
-            "Bajo capital inicial",
-            "Escasa regulación",
-            "Alta disponibilidad de proveedores"
-        ],
-        correcta: 0,
-        pista: "Las barreras legales limitan la entrada."
-    },
+    { q: "¿Qué mide el diamante de Porter?",
+      options: ["Competitividad nacional", "Clima", "Marketing"],
+      answer: 0,
+      hint: "Se usa para evaluar países." },
 
-    {
-        pregunta: "¿Qué aumenta el poder de negociación de los proveedores?",
-        opciones: [
-            "Ofrecen un producto único o difícil de sustituir",
-            "Hay muchos competidores",
-            "Los clientes tienen mucha información",
-            "La demanda es baja"
-        ],
-        correcta: 0,
-        pista: "Si solo ellos pueden proveerlo, tienen poder."
-    },
+    { q: "Valor compartido significa:",
+      options: ["Beneficio social + económico", "Solo utilidad", "Sólo RSE"],
+      answer: 0,
+      hint: "Busca impactar sociedad y empresa." },
 
-    {
-        pregunta: "¿Qué ocurre cuando los costos de cambio son altos?",
-        opciones: [
-            "Los clientes tienen menos poder",
-            "La amenaza de sustitutos aumenta",
-            "La rivalidad desaparece",
-            "Las barreras bajan"
-        ],
-        correcta: 0,
-        pista: "Entre más difícil cambiar, menos poder tiene el cliente."
-    },
+    { q: "Una ventaja competitiva sostenible es:",
+      options: ["Difícil de copiar", "Costosa", "Pequeña"],
+      answer: 0,
+      hint: "Puede ser tecnología o marca fuerte." },
 
-    {
-        pregunta: "¿Qué implica una alta disponibilidad de sustitutos?",
-        opciones: [
-            "Los consumidores pueden cambiar fácilmente",
-            "Los proveedores controlan toda la industria",
-            "No existe competencia indirecta",
-            "Los clientes pierden poder"
-        ],
-        correcta: 0,
-        pista: "A más opciones, más riesgo para la empresa."
-    },
+    { q: "El análisis de industria sirve para:",
+      options: ["Predecir competencia", "Diseñar logos", "Elegir colores"],
+      answer: 0,
+      hint: "Es el primer paso de la estrategia." },
 
-    /* LAS 4 PREGUNTAS ADICIONALES */
-    {
-        pregunta: "¿Qué analiza la fuerza de 'Rivalidad entre competidores'?",
-        opciones: [
-            "El nivel de competencia directa en la industria",
-            "El número de proveedores existentes",
-            "El poder de negociación de los clientes",
-            "Las barreras de entrada"
-        ],
-        correcta: 0,
-        pista: "Analiza qué tan fuerte es la competencia directa."
-    },
-
-    {
-        pregunta: "¿Qué representa la amenaza de nuevos entrantes?",
-        opciones: [
-            "El ingreso de empresas que pueden aumentar la competencia",
-            "El riesgo de sustitutos",
-            "La dependencia de los clientes",
-            "El control de precios de proveedores"
-        ],
-        correcta: 0,
-        pista: "Evalúa qué tan fácil es entrar a la industria."
-    },
-
-    {
-        pregunta: "¿Qué determina el poder de negociación de los proveedores?",
-        opciones: [
-            "La cantidad de alternativas de suministro",
-            "El marketing de las empresas",
-            "El tamaño de la industria",
-            "Los clientes potenciales"
-        ],
-        correcta: 0,
-        pista: "Si hay pocas fuentes, tienen poder."
-    },
-
-    {
-        pregunta: "¿Qué representa la amenaza de productos sustitutos?",
-        opciones: [
-            "Productos que pueden reemplazar la oferta principal",
-            "La entrada de competidores",
-            "La rivalidad directa",
-            "Las barreras de salida"
-        ],
-        correcta: 0,
-        pista: "Son alternativas que resuelven la misma necesidad."
-    }
+    { q: "Los clusters económicos son:",
+      options: ["Concentración de empresas", "Robots", "Aplicaciones"],
+      answer: 0,
+      hint: "Se agrupan en un territorio." }
 ];
 
 let index = 0;
-let puntaje = 0;
-let ayudas = 3;
-let tiempo = 0;
-let intervalo;
+let score = 0;
+let hints = 3;
+let time = 0;
+let timerInterval;
 
-function iniciarQuiz() {
-    document.getElementById("quiz").style.display = "block";
-    document.getElementById("infoTexto").style.display = "none";
-
-    intervalo = setInterval(() => {
-        tiempo++;
-        document.getElementById("cronometro").textContent = formatoTiempo(tiempo);
+/* ----------------------- TIMER ---------------------- */
+function startTimer() {
+    timerInterval = setInterval(() => {
+        time++;
+        const m = String(Math.floor(time / 60)).padStart(2, "0");
+        const s = String(time % 60).padStart(2, "0");
+        document.getElementById("timer").innerText = `${m}:${s}`;
     }, 1000);
-
-    cargarPregunta();
 }
 
-function cargarPregunta() {
-    document.getElementById("ayudaTexto").style.display = "none";
-    let p = preguntas[index];
-    document.getElementById("pregunta").innerText = p.pregunta;
+/* -------------------- INICIAR JUEGO -------------------- */
+function startGame() {
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("quiz-screen").style.display = "block";
+    startTimer();
+    loadQuestion();
+}
 
-    let cont = document.getElementById("opciones");
-    cont.innerHTML = "";
+/* ---------------------- CARGAR PREGUNTA ---------------------- */
+function loadQuestion() {
+    const q = questions[index];
+    document.getElementById("question").innerText = q.q;
 
-    p.opciones.forEach((op, i) => {
-        let div = document.createElement("div");
-        div.className = "opcion";
-        div.innerText = op;
-        div.onclick = () => responder(i);
-        cont.appendChild(div);
+    const box = document.getElementById("options");
+    box.innerHTML = "";
+
+    q.options.forEach((opt, i) => {
+        let btn = document.createElement("button");
+        btn.classList.add("option");
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(i, btn);
+        box.appendChild(btn);
     });
+
+    document.getElementById("hint-box").style.display = "none";
 }
 
-function vibrar() {
-    if (navigator.vibrate) {
-        navigator.vibrate([80, 50, 80]);
-    }
-}
+/* -------------------- RESPONDER -------------------- */
+function checkAnswer(selected, element) {
 
-function responder(i) {
-    vibrar();
+    vibrate(60);
 
-    if (i === preguntas[index].correcta) {
-        puntaje += 1;
-        document.getElementById("sonidoCorrecto").play();
+    const q = questions[index];
+    const correctSound = document.getElementById("sound-correct");
+    const wrongSound = document.getElementById("sound-wrong");
+
+    if (selected === q.answer) {
+        element.classList.add("correct");
+        score += 10;
+        correctSound.play();
     } else {
-        document.getElementById("sonidoIncorrecto").play();
+        element.classList.add("incorrect");
+        wrongSound.play();
     }
 
-    index++;
-
-    if (index >= preguntas.length) {
-        finalizar();
-    } else {
-        cargarPregunta();
-    }
+    setTimeout(() => {
+        index++;
+        if (index >= questions.length) finishGame();
+        else loadQuestion();
+    }, 800);
 }
 
-function usarAyuda() {
-    if (ayudas <= 0) return;
+/* ---------------- PISTAS ---------------- */
+function useHint() {
+    if (hints <= 0) return;
 
-    document.getElementById("sonidoAyuda").play();
-    vibrar();
+    hints--;
+    score -= 3;
 
-    ayudas--;
-    puntaje -= 0.10;
+    vibrate(40);
 
-    document.querySelector(".btn-sec").innerText = `Ayuda (${ayudas})`;
-
-    const pista = preguntas[index].pista;
-    const box = document.getElementById("ayudaTexto");
+    const box = document.getElementById("hint-box");
     box.style.display = "block";
-    box.innerText = "Pista: " + pista;
+    box.innerText = "Pista: " + questions[index].hint;
 }
 
-function finalizar() {
-    clearInterval(intervalo);
-
-    document.getElementById("quiz").style.display = "none";
-    document.getElementById("final").style.display = "block";
-
-    document.getElementById("sonidoMeta").play();
-
-    document.getElementById("puntajeFinal").innerText =
-        `Puntaje final: ${puntaje.toFixed(2)} / ${preguntas.length}`;
-
-    document.getElementById("tiempoFinal").innerText =
-        `Tiempo total: ${formatoTiempo(tiempo)}`;
+/* ---------------- VIBRACIÓN ---------------- */
+function vibrate(ms) {
+    if (navigator.vibrate) navigator.vibrate(ms);
 }
 
-function formatoTiempo(seg) {
-    let m = Math.floor(seg / 60);
-    let s = seg % 60;
-    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+/* ---------------- FINAL ---------------- */
+function finishGame() {
+    clearInterval(timerInterval);
+    document.getElementById("quiz-screen").style.display = "none";
+    document.getElementById("final-screen").style.display = "block";
+    document.getElementById("final-score").innerText =
+        `Puntaje final: ${score} puntos`;
+
+    document.getElementById("sound-end").play();
 }
 </script>
 
 </body>
 </html>
-
-
 
