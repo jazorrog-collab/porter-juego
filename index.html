@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quiz Porter — Estilo App Game</title>
+<title>Quiz Porter — App Game (con biografía)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -71,6 +71,30 @@
   .final{display:none;text-align:center;padding:18px}
   .final h2{margin:6px 0 12px 0}
 
+  /* modal biografia */
+  .bioPanel {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(2,20,40,0.6);
+    z-index: 1200;
+  }
+  .bioBox{
+    width: 92%;
+    max-width: 640px;
+    background: #ffffff;
+    color: #072032;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(2,20,40,0.6);
+    text-align: left;
+    line-height: 1.5;
+  }
+  .bioBox h3{margin-top:0;color:var(--bg2)}
+  .bioClose{display:inline-block;margin-top:14px;padding:10px 14px;border-radius:10px;background:var(--bg2);color:white;border:none;cursor:pointer}
+
   /* responsive */
   @media (max-width:680px){
     .bigIcon{width:78px;height:78px;font-size:30px}
@@ -85,6 +109,16 @@
       <div class="intro-left">
         <h1 class="title">Quiz interactivo: Michael Porter</h1>
         <p class="lead">Ponte a prueba con preguntas de estrategia. Responde rápido para ganar más puntos — estilo Kahoot. Usa ayudas con moderación.</p>
+
+        <!-- NEW: small area with bio teaser + button (integrated, non-intrusive) -->
+        <div style="background:rgba(255,255,255,0.04);padding:10px;border-radius:10px;margin-bottom:12px">
+          <strong>Biografía</strong>
+          <p style="margin:6px 0 8px 0;color:rgba(255,255,255,0.9);font-size:13px">
+            Michael E. Porter (n. 1947) es profesor en Harvard, creador de las 5 Fuerzas, la Cadena de Valor y el Diamante de competitividad.
+          </p>
+          <button class="btn-ghost" onclick="openBio()">Leer biografía</button>
+        </div>
+
         <div class="cta">
           <button id="startNoSound" class="btn-ghost" onclick="showGameNoSound()">Entrar sin sonido</button>
         </div>
@@ -121,7 +155,7 @@
       </div>
 
       <div class="controls">
-        <button id="helpBtn" class="helpBtn" onclick="useHelp()">Ayuda (-50)</button>
+        <button id="helpBtn" class="helpBtn" onclick="useHelp()">Ayuda (-50) (3)</button>
         <button class="btn-ghost" onclick="endEarly()">Finalizar</button>
       </div>
     </div>
@@ -138,6 +172,17 @@
 
   </div>
 
+  <!-- BIO PANEL -->
+  <div id="bioPanel" class="bioPanel" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="bioBox">
+      <h3>Michael E. Porter — Biografía breve</h3>
+      <p><strong>Michael Eugene Porter</strong> (nacido en 1947) es uno de los principales expertos mundiales en estrategia empresarial. Profesor de la Harvard Business School, Porter desarrolló marcos teóricos que cambiaron la forma en que se analiza la competencia y la ventaja competitiva. Sus teorías combinan economía industrial, análisis estructural y un enfoque práctico para ayudar a empresas y gobiernos a diseñar políticas y estrategias efectivas.</p>
+      <p>Entre sus aportes destacan las <strong>Cinco Fuerzas de Porter</strong>, la <strong>Cadena de Valor</strong>, el <strong>Diamante de la Competitividad</strong> y las <strong>Estrategias Genéricas</strong> (liderazgo en costos, diferenciación y enfoque). Ha asesorado a organizaciones internacionales, gobiernos y empresas, y sus publicaciones en Harvard Business Review y libros como <em>Competitive Strategy</em> y <em>Competitive Advantage</em> son lecturas fundamentales en escuelas de negocio.</p>
+      <p>Además de su trabajo en estrategia, Porter ha abordado temas de competitividad nacional, clústeres económicos y valor compartido, conectando resultados académicos con acciones prácticas en la economía y la sociedad.</p>
+      <button class="bioClose" onclick="closeBio()">Cerrar</button>
+    </div>
+  </div>
+
 <script>
 /* ==========================
    WebAudio - síntesis (no depende de archivos)
@@ -150,44 +195,33 @@ function ensureAudioContext() {
 }
 function resumeAudioIfNeeded() {
   if (!audioCtx) ensureAudioContext();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (audioCtx.state === 'suspended') return audioCtx.resume();
+  return Promise.resolve();
 }
-function playToneSequence(seq) {
-  // seq = [{freq,dur, type, gain, delayAfter}]
-  resumeAudioIfNeeded();
-  const now = audioCtx.currentTime;
-  seq.reduce((acc, s) => {
-    const start = now + acc;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = s.type || 'sine';
-    o.frequency.value = s.freq;
-    g.gain.value = s.gain || 0.06;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(start);
-    o.stop(start + s.dur/1000);
-    return acc + (s.dur + (s.delayAfter || 0))/1000;
-  }, 0);
+function playSequence(seq){
+  // seq = [{freq,dur,type,gain,delayAfter}]
+  resumeAudioIfNeeded().then(()=> {
+    const now = audioCtx.currentTime;
+    seq.reduce((acc, s) => {
+      const start = now + acc;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = s.type || 'sine';
+      o.frequency.value = s.freq;
+      g.gain.value = s.gain || 0.06;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(start);
+      o.stop(start + s.dur/1000);
+      return acc + (s.dur + (s.delayAfter || 0))/1000;
+    }, 0);
+  }).catch(()=>{ /* ignore */ });
 }
-function playCorrectSound(){
-  playToneSequence([
-    {freq:880, dur:120, type:'sine', gain:0.06, delayAfter:20},
-    {freq:1100, dur:120, type:'sine', gain:0.06}
-  ]);
-}
-function playWrongSound(){
-  playToneSequence([{freq:220, dur:220, type:'sawtooth', gain:0.08}]);
-}
-function playFinalSound(){
-  playToneSequence([
-    {freq:660, dur:140, type:'sine', gain:0.06, delayAfter:40},
-    {freq:880, dur:160, type:'sine', gain:0.06, delayAfter:40},
-    {freq:1040, dur:220, type:'sine', gain:0.07}
-  ]);
-}
+function playCorrectSound(){ playSequence([{freq:880,dur:120,type:'sine',gain:0.06,delayAfter:20},{freq:1100,dur:120,type:'sine',gain:0.06}]); }
+function playWrongSound(){ playSequence([{freq:220,dur:220,type:'sawtooth',gain:0.08}]); }
+function playFinalSound(){ playSequence([{freq:660,dur:140,type:'sine',gain:0.06,delayAfter:40},{freq:880,dur:160,type:'sine',gain:0.06,delayAfter:40},{freq:1040,dur:220,type:'sine',gain:0.07}]); }
 
 /* ==========================
-   Data preguntas (20), respuestas ya ubicadas correctamente
+   Preguntas (20) y shuffle
    ========================== */
 let questions = [
     { q:"¿Qué modelo creó Porter para analizar industrias?", options:["5 fuerzas","Estrategia azul","3 pasos"], answer:0, hint:"Analiza la competencia" },
@@ -211,15 +245,13 @@ let questions = [
     { q:"Ejemplo de sustituto:", options:["Hélice","Cable","Videollamadas vs viajes"], answer:2, hint:"Reducen la demanda del original" },
     { q:"¿Qué es estrategia?", options:["Copiar","Elegir qué no hacer","Improvisar"], answer:1, hint:"Límite claro" }
 ];
-
-/* shuffle questions order */
 questions = questions.sort(()=> Math.random() - 0.5);
 
-/* state variables */
+/* ========= estado ========= */
 let currentIndex = 0;
 let score = 0;
 let helpLeft = 3;
-let questionMaxTime = 12; // seconds per question
+let questionMaxTime = 12;
 let timeLeft = questionMaxTime;
 let timerInterval = null;
 let questionStartTime = 0;
@@ -237,59 +269,51 @@ const progressBar = document.getElementById('progressBar');
 const hintBox = document.getElementById('hintBox');
 const feedbackEl = document.getElementById('feedback');
 const helpBtn = document.getElementById('helpBtn');
+const bioPanel = document.getElementById('bioPanel');
 
-/* Activate audio button */
+/* ========== audio activation ========== */
 function activateAudio(){
   ensureAudioContext();
   // resume on user gesture
   audioCtx.resume().then(()=> {
     audioActivated = true;
-    // small confirmation sound & vibrate
-    playToneSequence([{freq:880,dur:100,gain:0.05}]);
-    navigatorVibrate([30]);
-    // start game immediately after activation
+    // small confirmation beep and vibrate
+    playSequence([{freq:880,dur:100,gain:0.05}]);
+    try{ if(navigator.vibrate) navigator.vibrate(40); } catch(e){}
     startGame();
-  }).catch(()=> {
-    // fallback: still proceed
+  }).catch(()=>{
     audioActivated = true;
     startGame();
   });
 }
-
-/* allow entering without sound */
 function showGameNoSound(){
   audioActivated = false;
   startGame();
 }
 
-/* vibration helper */
-function navigatorVibrate(pattern){
-  try{ if(navigator.vibrate) navigator.vibrate(pattern); } catch(e){}
+/* ========= utilidad vibrate ========= */
+function navigatorVibratePattern(p){
+  try{ if(navigator.vibrate) navigator.vibrate(p); } catch(e){}
 }
 
-/* Start the game */
+/* ========= juego: inicio/cargar/pregunta/responder ========= */
 function startGame(){
   introEl.style.display = 'none';
   finalEl.classList.add('hidden');
   gameEl.style.display = 'flex';
-  // reset stats
   currentIndex = 0; score = 0; helpLeft = 3;
   scoreEl.innerText = `Puntaje: ${score}`;
   helpBtn.innerText = `Ayuda (-50) (${helpLeft})`;
   loadQuestion();
 }
 
-/* Load question and shuffle options positions */
 function loadQuestion(){
   clearInterval(timerInterval);
   hintBox.style.display = 'none';
   feedbackEl.innerText = '';
   const q = questions[currentIndex];
-  // keep correct answer text to compare after shuffling
   const correctText = q.options[q.answer];
-  // shuffle options copy
   const opts = q.options.map(o=>o).sort(()=> Math.random()-0.5);
-  // render
   qtext.innerText = `(${currentIndex+1}/${questions.length}) ${q.q}`;
   optionsEl.innerHTML = '';
   opts.forEach((optText, idx)=>{
@@ -300,9 +324,7 @@ function loadQuestion(){
     btn.onclick = ()=> selectOption(btn, optText, correctText);
     optionsEl.appendChild(btn);
   });
-  // store mapping in DOM for later reveal
   optionsEl.dataset.correct = correctText;
-  // start timer for question
   timeLeft = questionMaxTime;
   timerEl.innerText = timeLeft;
   progressBar.style.width = '100%';
@@ -314,63 +336,46 @@ function loadQuestion(){
     progressBar.style.width = (timeLeft / questionMaxTime * 100) + '%';
     if(timeLeft <= 0){
       clearInterval(timerInterval);
-      // auto reveal as incorrect if time runs out
       handleTimeout();
     }
   },1000);
 }
 
-/* when user times out */
 function handleTimeout(){
   revealCorrectAndMark(null, 'timeout');
   feedbackEl.style.color = 'var(--bad)';
   feedbackEl.innerText = 'Se acabó el tiempo — incorrecto';
-  // play wrong sound
-  try{ playWrongSound(); } catch(e){}
-  navigatorVibrate([120,40,80]);
+  try{ playWrongSound(); }catch(e){}
+  navigatorVibratePattern([120,40,80]);
   setTimeout(nextQuestion, 1200);
 }
 
-/* selecting an option */
 function selectOption(btnEl, selectedText, correctText){
-  // disable further clicks
   const all = optionsEl.querySelectorAll('button');
   all.forEach(b=> b.disabled = true);
   clearInterval(timerInterval);
-
-  // determine correctness
   const correct = (selectedText === correctText);
-
-  // reveal correct/wrong visuals
   revealCorrectAndMark(selectedText, 'select');
-
-  // compute points like Kahoot: higher if faster
-  const elapsed = (Date.now() - questionStartTime)/1000; // seconds
+  const elapsed = (Date.now() - questionStartTime)/1000;
   const remaining = Math.max(0, questionMaxTime - elapsed);
-  // scoring formula: base 100 + up to 150 bonus proportional to remaining
   let pointsGained = 0;
   if(correct){
     pointsGained = Math.round(100 + (remaining / questionMaxTime) * 150);
     score += pointsGained;
     feedbackEl.style.color = '#0b6b4a';
     feedbackEl.innerText = `Correcto +${pointsGained} ptos`;
-    try{ playCorrectSound(); } catch(e){}
-    navigatorVibrate( [30,10,30] );
+    try{ playCorrectSound(); }catch(e){}
+    navigatorVibratePattern([30,10,30]);
   } else {
-    // penalty small for wrong (no negative large)
-    const penalty = 0;
-    score = Math.max(0, score - penalty);
     feedbackEl.style.color = 'var(--bad)';
     feedbackEl.innerText = `Incorrecto`;
-    try{ playWrongSound(); } catch(e){}
-    navigatorVibrate([90,40,90]);
+    try{ playWrongSound(); }catch(e){}
+    navigatorVibratePattern([90,40,90]);
   }
   scoreEl.innerText = `Puntaje: ${score}`;
-  // move to next after short delay
   setTimeout(nextQuestion, 1000);
 }
 
-/* reveal correct and mark chosen wrong/green */
 function revealCorrectAndMark(selectedText, reason){
   const corr = optionsEl.dataset.correct;
   const all = Array.from(optionsEl.querySelectorAll('button'));
@@ -379,29 +384,22 @@ function revealCorrectAndMark(selectedText, reason){
       b.classList.add('correct');
     } else if(selectedText && b.innerText === selectedText){
       b.classList.add('wrong');
-    } else {
-      // leave neutral
     }
   });
 }
 
-/* help/hint logic */
 function useHelp(){
   if(helpLeft <= 0) return;
   helpLeft--;
-  // deduct points immediately
   score = Math.max(0, score - 50);
   scoreEl.innerText = `Puntaje: ${score}`;
   helpBtn.innerText = `Ayuda (-50) (${helpLeft})`;
-  // show hint text
   hintBox.style.display = 'block';
   hintBox.innerText = `Pista: ${questions[currentIndex].hint}`;
-  // vibrate and subtle sound
-  navigatorVibrate([20,10,20]);
-  try{ playToneSequence([{freq:600,dur:120,gain:0.05}]); } catch(e){}
+  navigatorVibratePattern([20,10,20]);
+  try{ playSequence([{freq:600,dur:120,gain:0.05}]); } catch(e){}
 }
 
-/* proceed to next question or finish */
 function nextQuestion(){
   currentIndex++;
   if(currentIndex >= questions.length){
@@ -411,95 +409,39 @@ function nextQuestion(){
   }
 }
 
-/* finishing the game */
 function endGame(){
   clearInterval(timerInterval);
   gameEl.style.display = 'none';
   finalEl.classList.remove('hidden');
   finalEl.style.display = 'block';
-  const totalTime = 0; // not tracking total here separately
   document.getElementById('finalScore').innerText = `Puntaje final: ${score} pts`;
   document.getElementById('finalTime').innerText = '';
-  try{ playFinalSound(); } catch(e){}
-  navigatorVibrate([40,30,40]);
+  try{ playFinalSound(); }catch(e){}
+  navigatorVibratePattern([40,30,40]);
 }
 
-/* allow early finish */
-function endEarly(){
-  endGame();
+function endEarly(){ endGame(); }
+function restart(){ location.reload(); }
+
+/* ========== BIO modal handlers ========== */
+function openBio(){
+  bioPanel.style.display = 'flex';
+  bioPanel.setAttribute('aria-hidden','false');
+}
+function closeBio(){
+  bioPanel.style.display = 'none';
+  bioPanel.setAttribute('aria-hidden','true');
 }
 
-/* restart function */
-function restart(){
-  // reset and go home to intro
-  introEl.style.display = 'block';
-  gameEl.style.display = 'none';
-  finalEl.style.display = 'none';
-  location.reload();
-}
+/* allow clicking overlay to close */
+bioPanel.addEventListener('click', function(e){
+  if(e.target === bioPanel) closeBio();
+});
 
-/* Utility: small playToneSequence wrapper used before audioCtx exists */
-function playToneSequence(seq){
-  // if audio not activated, do nothing
-  try {
-    if(!audioActivated) return;
-  } catch(e){}
-  playToneSequence; // avoid lint
-}
-
-// Ensure playToneSequence reference from above is accessible in other contexts
-// (we previously declared a function with same name; overwritten in some branches)
-function playToneSequence(seq){
-  // call the WebAudio function defined earlier
-  // reuse playToneSequence defined at top-level (already defined), so simply call playToneSequenceInternal
-  try{
-    // call global internal implementation defined near top (playToneSequence)
-    // but since we redefined, call playToneSequenceInternal (we will map)
-    if(typeof window.playToneSequenceInternal === 'function'){
-      window.playToneSequenceInternal(seq);
-    } else {
-      // fallback: use simple beep
-      try{ ensureAudioContext(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = seq[0].freq||440; g.gain.value = seq[0].gain||0.05; o.start(); setTimeout(()=>o.stop(), seq[0].dur||120); } catch(e){}
-    }
-  } catch(e){}
-}
-// Map internal function name used earlier correctly
-window.playToneSequenceInternal = (function(){
-  // closure to use audioCtx
-  return function(seq){
-    resumeAudioIfNeeded();
-    const now = audioCtx.currentTime;
-    seq.reduce((acc, s) => {
-      const start = now + acc;
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = s.type || 'sine';
-      o.frequency.value = s.freq;
-      g.gain.value = s.gain || 0.06;
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(start);
-      o.stop(start + s.dur/1000);
-      return acc + (s.dur + (s.delayAfter || 0))/1000;
-    }, 0);
-  };
-})();
-
-/* Hook: ensure correct global functions are used for sounds */
-function playCorrectSound(){ try{ window.playToneSequenceInternal([{freq:880,dur:120,type:'sine',gain:0.06,delayAfter:20},{freq:1100,dur:120,type:'sine',gain:0.06}]); }catch(e){} }
-function playWrongSound(){ try{ window.playToneSequenceInternal([{freq:220,dur:220,type:'sawtooth',gain:0.08}]); }catch(e){} }
-function playFinalSound(){ try{ window.playToneSequenceInternal([{freq:660,dur:160,type:'sine',gain:0.06,delayAfter:40},{freq:880,dur:160,type:'sine',gain:0.06,delayAfter:40},{freq:1040,dur:260,type:'sine',gain:0.07}]); }catch(e){} }
-
-/* ensure AudioContext functions exist at top-level too */
-window.ensureAudioContext = ensureAudioContext;
-window.resumeAudioIfNeeded = resumeAudioIfNeeded;
-
-/* Safety: if user interacts (click anywhere), resume audio if activated flag */
+/* Safety: resume audio on any user click after activation */
 document.addEventListener('click', ()=> {
   if(audioActivated) resumeAudioIfNeeded();
 });
 </script>
 </body>
 </html>
-
-
-
