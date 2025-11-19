@@ -219,7 +219,6 @@ function selectOption(i){
   const correct = (i === q.correct);
   let bonus = 0;
   if(correct) bonus = Math.max(0,(30 - Math.min(30,tSec))/30) * 0.8;
-  // if used help, reduce bonus
   const usedHelp = questionBox.dataset.usedhelp==='true';
   if(usedHelp) bonus = bonus/2;
 
@@ -227,7 +226,6 @@ function selectOption(i){
   if(!correct && usedHelp) totalScore -= 0.2;
   totalScore += gained;
 
-  // reset
   questionBox.dataset.usedhelp = 'false';
   currentQuestion++;
   scorePanel.innerText = totalScore.toFixed(2);
@@ -245,7 +243,6 @@ function useHelp(){
   if(helpRemaining>0){
     helpRemaining--;
     helpBtn.innerText = `Usar ayuda (${helpRemaining})`;
-    // dim a wrong option
     const q = QUESTIONS[currentQuestion];
     const opts = Array.from(document.querySelectorAll('#questionBox .option'));
     const wrongIdx = opts.findIndex((el,idx)=> idx !== q.correct);
@@ -287,7 +284,7 @@ const PUZZLES = [
 ];
 
 let currentPuzzle = 0;
-let selectedItem = null;  // elemento actualmente seleccionado para colocar
+let selectedItem = null;
 let puzzleStart = null;
 
 /* ---------- iniciar puzzles ---------- */
@@ -307,7 +304,6 @@ function loadPuzzle(){
   const left = document.createElement('div'); left.className='match-col';
   const right = document.createElement('div'); right.className='match-col';
 
-  // shuffle and create items
   const terms = p.pairs.map(pair=>pair[0]).sort(()=>Math.random()-0.5);
   const targets = p.pairs.map(pair=>pair[1]).sort(()=>Math.random()-0.5);
 
@@ -317,7 +313,6 @@ function loadPuzzle(){
     itm.id = `p${currentPuzzle}-itm-${i}`;
     itm.innerText = t;
     itm.dataset.term = t;
-    // click to select / deselect
     itm.addEventListener('click', (e)=>{
       e.stopPropagation();
       handleSelectItem(itm);
@@ -331,8 +326,11 @@ function loadPuzzle(){
     dz.id = `p${currentPuzzle}-dz-${i}`;
     dz.dataset.target = tar;
     dz.innerHTML = `<div class="muted small" style="margin-bottom:6px">${tar}</div>`;
-    // clicking dropzone attempts to place selected item
     dz.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      handlePlaceAtDropzone(dz);
+    });
+    dz.querySelector('div').addEventListener('click', e=>{
       e.stopPropagation();
       handlePlaceAtDropzone(dz);
     });
@@ -342,7 +340,6 @@ function loadPuzzle(){
   area.appendChild(left); area.appendChild(right);
   puzzleContainer.appendChild(area);
 
-  // verify button and instructions
   puzzleContainer.innerHTML += `<div style="margin-top:12px" class="muted small">Toca un término para seleccionarlo (resaltará), luego toca la casilla donde deseas colocarlo.</div>
     <div style="margin-top:12px"><button class="btn" onclick="checkPuzzle()">Verificar puzzle</button></div>`;
 
@@ -351,13 +348,11 @@ function loadPuzzle(){
 
 /* ---------- seleccionar item ---------- */
 function handleSelectItem(itm){
-  // if same item clicked -> deselect
   if(selectedItem === itm){
     itm.classList.remove('selected');
     selectedItem = null;
     return;
   }
-  // deselect previous
   if(selectedItem) selectedItem.classList.remove('selected');
   selectedItem = itm;
   itm.classList.add('selected');
@@ -366,127 +361,13 @@ function handleSelectItem(itm){
 /* ---------- colocar item en dropzone ---------- */
 function handlePlaceAtDropzone(dz){
   if(!selectedItem) {
-    // no item selected -> maybe give a hint (flash)
     dz.classList.add('highlight');
     setTimeout(()=>dz.classList.remove('highlight'),300);
     return;
   }
-  // move selectedItem into dropzone
-  dz.appendChild(selectedItem);
-  // reset visuals and selection
-  selectedItem.classList.remove('selected');
-  selectedItem.classList.add('placed');
-  selectedItem = null;
-  // optionally, mark dropzone as occupied (we keep content)
-}
 
-/* ---------- verificar puzzle ---------- */
-function checkPuzzle(){
-  const p = PUZZLES[currentPuzzle];
-  let correct = 0;
-  const dzs = puzzleContainer.querySelectorAll('.dropzone');
-  dzs.forEach(dz=>{
-    const child = dz.querySelector('.cardItem');
-    if(child){
-      const term = child.dataset.term;
-      const found = p.pairs.find(pair=> pair[0] === term && pair[1] === dz.dataset.target);
-      if(found){
-        correct++;
-        dz.classList.add('correct');
-      } else {
-        dz.classList.remove('correct');
-      }
-    } else {
-      dz.classList.remove('correct');
-    }
-  });
-
-  // scoring: 2 points per correct pair + time bonus (faster => +0.5 per pair max)
-  const timeSec = (Date.now()-puzzleStart)/1000;
-  const perPairBase = 2;
-  const perPairBonus = Math.max(0, (60 - Math.min(60,timeSec))/60) * 0.5;
-  const gained = correct * (perPairBase + perPairBonus);
-
-  puzzleScore += gained;
-  totalScore += gained;
-  scorePanel.innerText = totalScore.toFixed(2);
-
-  // move to next puzzle or finish
-  currentPuzzle++;
-  if(currentPuzzle >= PUZZLES.length){
-    finishGame();
-  } else {
-    // small delay to show greens
-    setTimeout(()=> loadPuzzle(), 600);
-  }
-}
-
-/* ---------- opción: finalizar antes ---------- */
-function finishEarly(){
-  finishGame();
-}
-
-/* =========================
-   FINAL: gráfico y resumen
-   ========================= */
-function finishGame(){
-  puzzleSection.style.display = 'none';
-  finalBoard.style.display = 'block';
-  // render chart
-  renderFinalChart();
-  const totalTime = Math.floor((Date.now()-startTime)/1000);
-  finalScores.innerHTML = `<p>Puntaje total: <b>${totalScore.toFixed(2)}</b></p><p>Tiempo total: <b>${totalTime}s</b></p>`;
-}
-
-/* gráfico simple de barras en canvas */
-function renderFinalChart(){
-  const canvas = chartCanvas;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  const qPoints = Math.max(0, totalScore - puzzleScore);
-  const pPoints = puzzleScore;
-  const labels = ['Preguntas','Puzzles'];
-  const values = [qPoints, pPoints];
-  const colors = ['#2b6ef6','#1db954'];
-
-  const padding = 60;
-  const barWidth = 100;
-  const maxVal = Math.max(...values,1);
-
-  values.forEach((v,i)=>{
-    const h = (v / maxVal) * (canvas.height - 140);
-    const x = padding + i * (barWidth + 60);
-    const y = canvas.height - 60 - h;
-    ctx.fillStyle = colors[i];
-    ctx.fillRect(x,y,barWidth,h);
-    ctx.fillStyle = '#000';
-    ctx.fillText(labels[i], x, canvas.height - 30);
-    ctx.fillText(v.toFixed(1), x, y - 8);
-  });
-}
-
-/* =========================
-   Accessibility: tocar en cualquier parte quita selección
-   ========================= */
-document.addEventListener('click', function(e){
-  // if click outside selected item, deselect
-  if(selectedItem){
-    const isCard = e.target.closest('.cardItem');
-    if(!isCard){
-      selectedItem.classList.remove('selected');
-      selectedItem = null;
-    }
-  }
-});
-
-/* =========================
-   Inicialización: (si necesitas precargar algo)
-   ========================= */
-(function init(){
-  // nothing to init for now
-})();
-</script>
-</body>
-</html>
-
+  const existingItem = dz.querySelector('.cardItem');
+  if(existingItem){
+    const parentCol = dz.closest('.match-area').querySelector('.match-col');
+    parentCol.appendChild(existingItem);
+    existingItem
