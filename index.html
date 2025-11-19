@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Juego: Michael Porter — Tocar y Colocar</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
   :root{
     --bg:#f3f6ff; --card:#ffffff; --primary:#112b57; --accent:#2b6ef6; --muted:#6b7280;
@@ -28,6 +29,7 @@
   .option:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(43,110,246,0.08)}
   #timer{font-weight:700;color:crimson}
   .helpBtn{background:#f6d365;color:#7c4a00;padding:8px 12px;border-radius:8px;border:none}
+
   /* puzzles */
   .match-area{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
   .match-col{flex:1;min-width:200px}
@@ -43,19 +45,14 @@
   }
   .cardItem.selected{outline:3px solid rgba(43,110,246,0.15); transform:scale(1.02)}
   .placed{background:#dff3e6}
-  /* layout small */
-  .infoButtons{display:flex;gap:8px;flex-direction:column}
-  .center{display:flex;justify-content:center}
-  /* final */
-  #finalBoard canvas{max-width:100%}
-  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-  /* responsive tweaks */
+
   @media (max-width:520px){
     .row{flex-direction:column}
     .match-area{flex-direction:column}
   }
 </style>
 </head>
+
 <body>
 <div class="wrap">
   <header>
@@ -76,7 +73,7 @@
       </div>
       <div class="col">
         <h3 style="margin-top:0">Resumen</h3>
-        <div id="infoPanel" class="muted small">Haz clic en una categoría para ver la información. Esta información se integra con el quiz y puzzles.</div>
+        <div id="infoPanel" class="muted small">Haz clic en una categoría para ver la información.</div>
         <div style="margin-top:12px" class="center">
           <button class="btn" onclick="startGame()">Comenzar juego</button>
         </div>
@@ -118,20 +115,17 @@
     <div id="finalScores" style="margin-top:12px"></div>
   </section>
 
-  <footer class="muted small">Súbelo a GitHub Pages o Netlify y comparte el enlace por WhatsApp.</footer>
+  <footer class="muted small">Súbelo a GitHub Pages o Netlify.</footer>
 </div>
 
 <script>
 /* =========================
    Contenido histórico
    ========================= */
-const LIFE = `Michael Eugene Porter (n. 1947) es profesor en Harvard. Sus teorías sobre competencia y ventaja competitiva son pilares en estrategia empresarial.`;
-const WORKS = `Conceptos clave: <b>5 Fuerzas</b>, <b>Cadena de Valor</b>, <b>Estrategias Genéricas</b>, <b>Diamante de competitividad</b>.`;
-const PUBS = `Libros principales: "Competitive Strategy" (1980), "Competitive Advantage" (1985). Artículos en Harvard Business Review.`;
+const LIFE = `Michael Eugene Porter (n. 1947) es profesor en Harvard.`;
+const WORKS = `Conceptos clave: <b>5 Fuerzas</b>, <b>Cadena de Valor</b>, <b>Estrategias Genéricas</b>.`;
+const PUBS = `Libros: "Competitive Strategy" (1980), "Competitive Advantage" (1985).`;
 
-/* =========================
-   Elementos DOM (referencias)
-   ========================= */
 const infoPanel = document.getElementById('infoPanel');
 const startMenu = document.getElementById('startMenu');
 const quizSection = document.getElementById('quizSection');
@@ -145,140 +139,101 @@ const scorePanel = document.getElementById('scorePanel');
 const timer = document.getElementById('timer');
 const finalScores = document.getElementById('finalScores');
 
-/* =========================
-   Mostrar resumenes
-   ========================= */
+/* Mostrar info */
 function showLife(){ infoPanel.innerHTML = LIFE; }
 function showWorks(){ infoPanel.innerHTML = WORKS; }
 function showPubs(){ infoPanel.innerHTML = PUBS; }
 
 /* =========================
-   Preguntas (Múltiple elección)
+   Preguntas
    ========================= */
 const QUESTIONS = [
-  { q: '¿Cuántas fuerzas incluye el modelo de Porter?', opts:['3','5','7'], correct:1 },
-  { q: '¿Cuál NO es una estrategia genérica según Porter?', opts:['Diferenciación','Liderazgo en costos','Innovación disruptiva'], correct:2 },
-  { q: '¿Qué analiza la cadena de valor?', opts:['Actividades que añaden valor','Clima laboral','Estructura de costes fiscales'], correct:0 },
-  { q: '¿En qué década se publicó "Competitive Strategy"?', opts:['1960s','1980s','1990s'], correct:1 },
-  { q: '¿Qué es un cluster según Porter?', opts:['Concentración geográfica de empresas','Un monopolio','Un contrato'], correct:0 },
-  { q: '¿Las actividades de la cadena de valor se dividen en?', opts:['Primarias y de apoyo','Productos y servicios','Clientes y proveedores'], correct:0 },
-  { q: '¿Cuál es una posible fuente de ventaja competitiva?', opts:['Bajos costos o diferenciación','Evitar competencia','Aumentar precios sin valor'], correct:0 },
-  { q: '¿Qué fuerza mide la amenaza de nuevos entrantes?', opts:['Entrada de startups','Preferencias de consumidores','Tasas de interés'], correct:0 },
-  { q: '¿A qué se refiere "sustitutos"?', opts:['Productos que cubren la misma necesidad','Empresas complementarias','Acciones financieras'], correct:0 },
-  { q: '¿Qué estrategia busca ser único en el mercado?', opts:['Diferenciación','Costo','Foco'], correct:0 }
+  { q: '¿Cuántas fuerzas incluye Porter?', opts:['3','5','7'], correct:1 },
+  { q: '¿Cuál NO es estrategia genérica?', opts:['Diferenciación','Liderazgo en costos','Innovación disruptiva'], correct:2 },
 ];
 
 let currentQuestion = 0;
 let startTime = null;
 let questionStart = null;
-let elapsedTimer = null;
+let timerInt = null;
 let totalScore = 0;
 let puzzleScore = 0;
 let helpRemaining = 3;
 
-/* ---------- inicio del juego ---------- */
+/* Iniciar juego */
 function startGame(){
   startMenu.style.display = 'none';
   quizSection.style.display = 'block';
-  puzzleSection.style.display = 'none';
-  finalBoard.style.display = 'none';
 
-  currentQuestion = 0; totalScore = 0; puzzleScore = 0; helpRemaining = 3;
+  currentQuestion = 0;
+  totalScore = 0;
+  puzzleScore = 0;
+  helpRemaining = 3;
   helpBtn.innerText = `Usar ayuda (${helpRemaining})`;
 
   startTime = Date.now();
   showQuestion();
 
-  if(elapsedTimer) clearInterval(elapsedTimer);
-  elapsedTimer = setInterval(()=>{
-    timer.innerText = Math.floor((Date.now()-startTime)/1000) + 's';
+  if(timerInt) clearInterval(timerInt);
+  timerInt = setInterval(()=>{
+    timer.innerText = Math.floor((Date.now()-startTime)/1000)+'s';
   },1000);
 }
 
-/* ---------- mostrar pregunta ---------- */
+/* Mostrar pregunta */
 function showQuestion(){
   const q = QUESTIONS[currentQuestion];
   questionStart = Date.now();
 
   questionBox.innerHTML = `<div class="question">${q.q}</div>`;
-  const opts = document.createElement('div'); opts.className='options';
+  const opts = document.createElement('div');
+  opts.className='options';
+
   q.opts.forEach((o,i)=>{
     const d = document.createElement('div');
-    d.className = 'option';
+    d.className='option';
     d.innerText = o;
     d.onclick = ()=> selectOption(i);
     opts.appendChild(d);
   });
+
   questionBox.appendChild(opts);
 }
 
-/* ---------- seleccionar respuesta ---------- */
+/* Seleccionar respuesta */
 function selectOption(i){
   const q = QUESTIONS[currentQuestion];
-  const tSec = (Date.now()-questionStart)/1000;
   const correct = (i === q.correct);
-  let bonus = 0;
-  if(correct) bonus = Math.max(0,(30 - Math.min(30,tSec))/30) * 0.8;
-  const usedHelp = questionBox.dataset.usedhelp==='true';
-  if(usedHelp) bonus = bonus/2;
 
-  const gained = correct ? (1 + bonus) : 0;
-  if(!correct && usedHelp) totalScore -= 0.2;
-  totalScore += gained;
+  if(correct) totalScore += 1;
 
-  questionBox.dataset.usedhelp = 'false';
   currentQuestion++;
   scorePanel.innerText = totalScore.toFixed(2);
 
   if(currentQuestion >= QUESTIONS.length){
-    clearInterval(elapsedTimer);
-    quizSection.style.display = 'none';
+    clearInterval(timerInt);
+    quizSection.style.display='none';
     startPuzzles();
-  } else {
-    showQuestion();
-  }
+  } else showQuestion();
 }
 
 function useHelp(){
-  if(helpRemaining>0){
-    helpRemaining--;
-    helpBtn.innerText = `Usar ayuda (${helpRemaining})`;
-    const q = QUESTIONS[currentQuestion];
-    const opts = Array.from(document.querySelectorAll('#questionBox .option'));
-    const wrongIdx = opts.findIndex((el,idx)=> idx !== q.correct);
-    if(opts[wrongIdx]) opts[wrongIdx].style.opacity = 0.45;
-    questionBox.dataset.usedhelp = 'true';
-  } else {
-    if(totalScore >= 0.5 && confirm('Comprar 1 ayuda por 0.5 puntos?')){
-      totalScore -= 0.5; helpRemaining = 1; helpBtn.innerText = `Usar ayuda (${helpRemaining})`; scorePanel.innerText = totalScore.toFixed(2);
-    } else alert('No tienes ayudas ni puntos suficientes.');
-  }
+  if(helpRemaining<=0) return;
+  helpRemaining--;
+  helpBtn.innerText = `Usar ayuda (${helpRemaining})`;
 }
 
 /* =========================
-   Puzzles: seleccionar y colocar
+   Puzzles
    ========================= */
 const PUZZLES = [
-  { id:'p1', title:'Empareja fuerzas → descripción', pairs:[
-      ['Rivalidad entre competidores','Competencia intensa entre empresas'],
-      ['Poder de proveedores','Capacidad de proveedores para subir precios'],
-      ['Poder de compradores','Capacidad de compradores para presionar precios']
-    ]
-  },
-  { id:'p2', title:'Actividades (Primaria/Apoyo)', pairs:[
-      ['Operaciones','Primaria'], ['Recursos Humanos','Apoyo'], ['Logística externa','Primaria']
-    ]
-  },
-  { id:'p3', title:'Obras y año (ejemplo)', pairs:[
-      ['Competitive Strategy','1980'], ['Competitive Advantage','1985']
-    ]
-  },
-  { id:'p4', title:'Concepto → definición', pairs:[
-      ['Diferenciación','Hacer único el producto'], ['Liderazgo en costos','Ser el de menor costo']
-    ]
-  },
-  { id:'p5', title:'Término → ejemplo', pairs:[
-      ['Sustituto','Servicios de streaming'], ['Entrante','Startup fintech']
+  { 
+    id:'p1',
+    title:'Empareja fuerzas → descripción',
+    pairs:[
+      ['Rivalidad entre competidores','Competencia intensa'],
+      ['Poder de proveedores','Subir precios'],
+      ['Poder de compradores','Presionar precios']
     ]
   }
 ];
@@ -287,66 +242,71 @@ let currentPuzzle = 0;
 let selectedItem = null;
 let puzzleStart = null;
 
-/* ---------- iniciar puzzles ---------- */
 function startPuzzles(){
-  puzzleSection.style.display = 'block';
-  currentPuzzle = 0;
-  puzzleScore = 0;
+  puzzleSection.style.display='block';
   loadPuzzle();
 }
 
-/* ---------- cargar puzzle actual ---------- */
 function loadPuzzle(){
   const p = PUZZLES[currentPuzzle];
   puzzleContainer.innerHTML = `<div><strong>${p.title}</strong></div>`;
 
-  const area = document.createElement('div'); area.className='match-area';
-  const left = document.createElement('div'); left.className='match-col';
-  const right = document.createElement('div'); right.className='match-col';
+  const area = document.createElement('div');
+  area.className='match-area';
 
-  const terms = p.pairs.map(pair=>pair[0]).sort(()=>Math.random()-0.5);
-  const targets = p.pairs.map(pair=>pair[1]).sort(()=>Math.random()-0.5);
+  const left = document.createElement('div');
+  left.className='match-col';
+  const right = document.createElement('div');
+  right.className='match-col';
+
+  const terms = p.pairs.map(e=>e[0]).sort(()=>Math.random()-0.5);
+  const targets = p.pairs.map(e=>e[1]).sort(()=>Math.random()-0.5);
 
   terms.forEach((t,i)=>{
     const itm = document.createElement('div');
-    itm.className = 'cardItem';
-    itm.id = `p${currentPuzzle}-itm-${i}`;
-    itm.innerText = t;
-    itm.dataset.term = t;
-    itm.addEventListener('click', (e)=>{
-      e.stopPropagation();
+    itm.className='cardItem';
+    itm.dataset.term=t;
+    itm.innerText=t;
+
+    itm.addEventListener('click', ()=>{
       handleSelectItem(itm);
     });
+
     left.appendChild(itm);
   });
 
   targets.forEach((tar,i)=>{
     const dz = document.createElement('div');
-    dz.className = 'dropzone';
-    dz.id = `p${currentPuzzle}-dz-${i}`;
+    dz.className='dropzone';
     dz.dataset.target = tar;
     dz.innerHTML = `<div class="muted small" style="margin-bottom:6px">${tar}</div>`;
-    dz.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      handlePlaceAtDropzone(dz);
+
+    ['click','touchend'].forEach(ev=>{
+      dz.addEventListener(ev, e=>{
+        e.stopPropagation();
+        handlePlaceAtDropzone(dz);
+      });
     });
-    dz.querySelector('div').addEventListener('click', e=>{
-      e.stopPropagation();
-      handlePlaceAtDropzone(dz);
-    });
+
     right.appendChild(dz);
   });
 
-  area.appendChild(left); area.appendChild(right);
+  area.appendChild(left);
+  area.appendChild(right);
   puzzleContainer.appendChild(area);
 
-  puzzleContainer.innerHTML += `<div style="margin-top:12px" class="muted small">Toca un término para seleccionarlo (resaltará), luego toca la casilla donde deseas colocarlo.</div>
-    <div style="margin-top:12px"><button class="btn" onclick="checkPuzzle()">Verificar puzzle</button></div>`;
+  puzzleContainer.innerHTML += `
+    <div style="margin-top:12px" class="muted small">
+      Toca un término para seleccionarlo, luego toca la casilla donde deseas colocarlo.
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="checkPuzzle()">Verificar puzzle</button>
+    </div>
+  `;
 
   puzzleStart = Date.now();
 }
 
-/* ---------- seleccionar item ---------- */
 function handleSelectItem(itm){
   if(selectedItem === itm){
     itm.classList.remove('selected');
@@ -354,20 +314,81 @@ function handleSelectItem(itm){
     return;
   }
   if(selectedItem) selectedItem.classList.remove('selected');
+
   selectedItem = itm;
   itm.classList.add('selected');
 }
 
-/* ---------- colocar item en dropzone ---------- */
 function handlePlaceAtDropzone(dz){
-  if(!selectedItem) {
+  if(!selectedItem){
     dz.classList.add('highlight');
     setTimeout(()=>dz.classList.remove('highlight'),300);
     return;
   }
 
-  const existingItem = dz.querySelector('.cardItem');
-  if(existingItem){
-    const parentCol = dz.closest('.match-area').querySelector('.match-col');
-    parentCol.appendChild(existingItem);
-    existingItem
+  dz.appendChild(selectedItem);
+  selectedItem.classList.remove('selected');
+  selectedItem.classList.add('placed');
+  selectedItem = null;
+}
+
+function checkPuzzle(){
+  const p = PUZZLES[currentPuzzle];
+  let correct = 0;
+
+  puzzleContainer.querySelectorAll('.dropzone').forEach(dz=>{
+    const child = dz.querySelector('.cardItem');
+    if(child){
+      const term = child.dataset.term;
+      const ok = p.pairs.find(e=>e[0]===term && e[1]===dz.dataset.target);
+      if(ok){
+        correct++;
+        dz.classList.add('correct');
+      }
+    }
+  });
+
+  const gained = correct * 2;
+  puzzleScore += gained;
+  totalScore += gained;
+  scorePanel.innerText = totalScore.toFixed(2);
+
+  finishGame();
+}
+
+/* =========================
+   Final
+   ========================= */
+function finishEarly(){ finishGame(); }
+
+function finishGame(){
+  puzzleSection.style.display='none';
+  finalBoard.style.display='block';
+
+  finalScores.innerHTML = `
+    <p>Puntaje total: <b>${totalScore.toFixed(2)}</b></p>
+    <p>Tiempo total: <b>${Math.floor((Date.now()-startTime)/1000)}s</b></p>
+  `;
+}
+
+/* =========================
+   FIX IMPORTANTE (celulares)
+   ========================= */
+
+document.addEventListener('click', function(e){
+  if(!selectedItem) return;
+
+  const isCard = e.target.closest('.cardItem');
+  const isDrop = e.target.closest('.dropzone');
+
+  // NO deseleccionar cuando se toca card o dropzone
+  if(isCard || isDrop) return;
+
+  // tocar afuera → deseleccionar
+  selectedItem.classList.remove('selected');
+  selectedItem = null;
+});
+</script>
+</body>
+</html>
+
