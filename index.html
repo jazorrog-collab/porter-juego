@@ -17,7 +17,7 @@
   .card{background:var(--card);border-radius:12px;padding:16px;
         box-shadow:0 6px 20px rgba(17,43,87,0.06);margin-top:18px}
 
-  .row{display:flex;gap:14px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
   .col{flex:1}
   .btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
   .btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(17,43,87,0.06)}
@@ -34,10 +34,19 @@
   .helpBtn{background:#f6d365;color:#7c4a00;padding:8px 12px;border-radius:8px;border:none}
 
   /* PUZZLES */
-  .match-area{display:flex;gap:18px;align-items:flex-start}
-  .match-col{flex:1}
-  .dropzone{min-height:120px;border:2px dashed #e6eefc;border-radius:10px;padding:12px;background:#fbfdff}
-  .cardItem{background:#eef6ff;padding:8px;border-radius:8px;margin:8px 0;cursor:grab;position:relative;}
+  .match-area{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .match-col{flex:1;min-width:200px}
+  .dropzone{
+    min-height:120px;border:2px dashed #e6eefc;border-radius:10px;
+    padding:12px;background:#fbfdff;position:relative;
+  }
+
+  .cardItem{
+    background:#eef6ff;padding:8px;border-radius:8px;margin:8px 0;
+    cursor:grab;position:relative;touch-action:none;
+    transition:transform 0.15s ease;
+  }
+  .cardItem:active{transform:scale(1.05)}
   .placed{background:#dff3e6}
 
   /* FINAL BOARD */
@@ -76,6 +85,7 @@
       <div class="col">
         <div id="questionBox"></div>
       </div>
+
       <div style="width:180px;text-align:right">
         <div class="muted small">Cronómetro</div>
         <div id="timer">0s</div>
@@ -104,18 +114,18 @@
     <div id="finalScores" style="margin-top:12px"></div>
   </section>
 
-  <footer class="muted small">Sube este archivo a GitHub Pages y compártelo por WhatsApp.</footer>
+  <footer class="muted small">Comparte este archivo vía GitHub Pages.</footer>
 </div>
 
 <script>
 /* =============================
    CONTENIDO HISTÓRICO
 ============================= */
-const LIFE = `Michael Eugene Porter (1947) es profesor de Harvard y una de las figuras más influyentes en estrategia empresarial. Pionero en análisis estructural y competitividad.`;
+const LIFE = `Michael Eugene Porter (1947) es profesor de Harvard y una de las figuras más influyentes en estrategia empresarial.`;
 
-const WORKS = `Sus conceptos clave incluyen: <b>5 Fuerzas</b>, <b>Cadena de Valor</b>, <b>Estrategias Genéricas</b> y <b>Diamante de competitividad</b>.`;
+const WORKS = `Conceptos: <b>5 Fuerzas</b>, <b>Cadena de Valor</b>, <b>Estrategias Genéricas</b>, <b>Diamante de competitividad</b>.`;
 
-const PUBS = `"Competitive Strategy" (1980), "Competitive Advantage" (1985) y múltiples artículos en Harvard Business Review.`;
+const PUBS = `"Competitive Strategy" (1980), "Competitive Advantage" (1985) y artículos en HBR.`;
 
 function showLife(){ infoPanel.innerHTML=LIFE; }
 function showWorks(){ infoPanel.innerHTML=WORKS; }
@@ -141,7 +151,6 @@ function startGame(){
   helpBtn.innerText=`Usar ayuda (${helpRemaining})`;
   startTime=Date.now();
   showQuestion();
-
   timerLoop=setInterval(()=>{ timer.innerText=Math.floor((Date.now()-startTime)/1000)+'s'; },1000);
 }
 
@@ -165,15 +174,13 @@ function showQuestion(){
 
 function selectOption(i){
   const q=QUESTIONS[currentQuestion];
-  const correct = i===q.correct;
+  const correct=i===q.correct;
   let bonus=0;
-
   if(correct){
     const t=(Date.now()-questionStart)/1000;
     bonus=Math.max(0,(30-t)/30)*0.8;
   }
-
-  totalScore += correct ? (1+bonus) : 0;
+  totalScore+=correct?(1+bonus):0;
   currentQuestion++;
 
   if(currentQuestion>=QUESTIONS.length){
@@ -189,10 +196,9 @@ function useHelp(){
   if(helpRemaining>0){
     helpRemaining--;
     helpBtn.innerText=`Usar ayuda (${helpRemaining})`;
-
     const opts=document.querySelectorAll('.option');
     const q=QUESTIONS[currentQuestion];
-    const wrong=[...opts].find((el,idx)=>idx!==q.correct);
+    const wrong=[...opts].find((e,i)=>i!==q.correct);
     if(wrong) wrong.style.opacity=0.4;
   }
 }
@@ -200,7 +206,6 @@ function useHelp(){
 /* =============================
    PUZZLES
 ============================= */
-
 const PUZZLES=[
   {title:'5 Fuerzas',pairs:[
     ['Rivalidad','Competencia intensa'],
@@ -216,7 +221,7 @@ const PUZZLES=[
 
 let currentPuzzle=0,puzzleStart=0;
 
-/* DRAG & DROP – PC */
+/* PC DRAG */
 function dragStart(ev){ ev.dataTransfer.setData('text',ev.target.id); }
 function dragOver(ev){ ev.preventDefault(); }
 function dropItem(ev){
@@ -226,12 +231,15 @@ function dropItem(ev){
   if(el) ev.currentTarget.appendChild(el);
 }
 
-/* TOUCH DRAG – CELULAR */
+/* TOUCH DRAG – MOVIL */
 let touchItem=null;
 
 document.addEventListener('touchstart',e=>{
   const t=e.target.closest('.cardItem');
-  if(t){ touchItem=t; t.style.opacity=0.6; }
+  if(t){
+    touchItem=t;
+    t.style.opacity=0.65;
+  }
 });
 
 document.addEventListener('touchmove',e=>{
@@ -248,10 +256,18 @@ document.addEventListener('touchend',e=>{
   const touch=e.changedTouches[0];
   const elem=document.elementFromPoint(touch.clientX,touch.clientY);
   const drop=elem?.closest('.dropzone');
+
   touchItem.style.opacity=1;
-  touchItem.style.position='static';
+  touchItem.style.position='relative';
+  touchItem.style.left='0px';
+  touchItem.style.top='0px';
   touchItem.style.zIndex=1;
-  if(drop) drop.appendChild(touchItem);
+
+  if(drop){
+    drop.appendChild(touchItem);
+    touchItem.classList.add('placed');
+  }
+
   touchItem=null;
 });
 
@@ -297,9 +313,11 @@ function loadPuzzle(){
   area.appendChild(right);
   puzzleContainer.appendChild(area);
 
-  puzzleContainer.innerHTML+=`<div style="margin-top:12px">
-    <button class="btn" onclick="checkPuzzle()">Verificar</button>
-  </div>`;
+  puzzleContainer.innerHTML+=`
+    <div style="margin-top:12px">
+      <button class="btn" onclick="checkPuzzle()">Verificar</button>
+    </div>
+  `;
 
   puzzleStart=Date.now();
 }
@@ -318,11 +336,11 @@ function checkPuzzle(){
     }
   });
 
-  const time=(Date.now()-puzzleStart)/1000;
-  const bonus=Math.max(0,(60-time)/60)*0.5;
+  const t=(Date.now()-puzzleStart)/1000;
+  const bonus=Math.max(0,(60-t)/60)*0.5;
 
-  puzzleScore += correct*(2+bonus);
-  totalScore += correct*(2+bonus);
+  puzzleScore+=correct*(2+bonus);
+  totalScore+=correct*(2+bonus);
 
   scorePanel.innerText=totalScore.toFixed(2);
 
@@ -331,13 +349,9 @@ function checkPuzzle(){
   else loadPuzzle();
 }
 
-/* =============================
-   FINAL
-============================= */
 function finishGame(){
   puzzleSection.style.display='none';
   finalBoard.style.display='block';
-
   renderFinalChart();
 
   finalScores.innerHTML=`
@@ -352,19 +366,19 @@ function renderFinalChart(){
 
   const qp=Math.max(0,totalScore-puzzleScore);
   const pp=puzzleScore;
-  const values=[qp,pp];
+  const vals=[qp,pp];
   const labels=['Preguntas','Puzzles'];
   const colors=['#2b6ef6','#1db954'];
 
-  const hMax=Math.max(...values);
-  const barWidth=100,pad=60;
+  const hMax=Math.max(...vals);
+  const pad=60,barW=100;
 
-  values.forEach((v,i)=>{
+  vals.forEach((v,i)=>{
     const h=(v/hMax)*(cv.height-140);
-    const x=pad+i*(barWidth+60);
+    const x=pad+i*(barW+60);
     const y=cv.height-60-h;
     ctx.fillStyle=colors[i];
-    ctx.fillRect(x,y,barWidth,h);
+    ctx.fillRect(x,y,barW,h);
     ctx.fillStyle='#000';
     ctx.fillText(labels[i],x,y+h+40);
     ctx.fillText(v.toFixed(1),x,y-8);
@@ -373,5 +387,3 @@ function renderFinalChart(){
 </script>
 </body>
 </html>
-
-
