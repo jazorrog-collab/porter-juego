@@ -163,15 +163,15 @@ function mostrarInfo(tipo) {
     const textos = {
         bibliografia: `
         <h3>Bibliografía</h3>
-        <p>Michael E. Porter, profesor de Harvard, es reconocido mundialmente por sus investigaciones sobre estrategia competitiva y ventajas sostenibles. Su obra más influyente, "Competitive Strategy" (1980), introdujo el modelo de las Cinco Fuerzas, una herramienta esencial para analizar industrias y determinar el nivel de competencia. Su bibliografía incluye estudios sobre ventaja competitiva, políticas públicas, desarrollo económico, clústeres industriales y competitividad nacional. Porter también ha colaborado con organizaciones internacionales para aplicar sus modelos en el desarrollo de países, fortaleciendo la innovación, la productividad y la gestión empresarial. Su enfoque combina rigor académico y aplicabilidad práctica.</p>
+        <p>Michael E. Porter es uno de los académicos más influyentes en el campo de la estrategia empresarial. Su trayectoria inicia en la Universidad de Harvard, donde desarrolló modelos fundamentales para comprender la competitividad. Entre sus principales contribuciones se encuentra el modelo de las Cinco Fuerzas, una de las herramientas más utilizadas para analizar industrias y mercados. Su bibliografía abarca obras relacionadas con competitividad nacional, clústeres productivos, estrategia corporativa y políticas públicas de desarrollo económico. Ha trabajado con gobiernos y organizaciones internacionales para mejorar la productividad, aplicando principios estratégicos a la economía territorial. Su enfoque siempre ha buscado unir rigurosidad analítica con utilidad práctica.</p>
         `,
         obras: `
         <h3>Obras Reconocidas</h3>
-        <p>Entre sus obras destacan "Competitive Strategy" (1980) y "Competitive Advantage" (1985), consideradas pilares fundamentales de la estrategia empresarial contemporánea. En estos libros, Porter describe cómo las empresas pueden posicionarse estratégicamente y construir ventajas sostenibles. También publicó "The Competitive Advantage of Nations" (1990), donde desarrolla el concepto de clústeres y examina cómo los países pueden mejorar su competitividad. Su obra incluye múltiples artículos en Harvard Business Review sobre estrategia, salud, responsabilidad social corporativa y el valor compartido. Cada obra de Porter ha influido significativamente en la forma como las organizaciones analizan mercados y desarrollan estrategias.</p>
+        <p>Porter ha escrito obras que han transformado la forma en que las empresas entienden la competencia. Su libro más influyente, “Competitive Strategy” (1980), introdujo conceptos como la rivalidad, las barreras de entrada y los sustitutos. Posteriormente, con “Competitive Advantage” (1985), profundizó en cómo las empresas pueden crear y sostener ventajas estratégicas. “The Competitive Advantage of Nations” (1990) amplía el análisis a economías completas, introduciendo el famoso “diamante de Porter”. Cada una de estas obras ha sido traducida a múltiples idiomas y sigue siendo referencia obligatoria en escuelas de negocios. Hoy, sus ideas continúan guiando decisiones estratégicas en sectores empresariales y gubernamentales.</p>
         `,
         publicaciones: `
         <h3>Publicaciones Destacadas</h3>
-        <p>Michael Porter ha publicado cientos de artículos académicos y de divulgación. Entre los más influyentes se encuentran “What is Strategy?”, donde explica la importancia de la diferenciación y la creación de valor único; y “Creating Shared Value”, donde redefine la relación entre empresa y sociedad. También ha publicado informes sobre competitividad nacional para gobiernos y organizaciones globales. Sus publicaciones abarcan temas como sistemas de salud, responsabilidad corporativa, productividad, desarrollo económico territorial y estrategias industriales. Su trabajo se caracteriza por ofrecer marcos analíticos sólidos que permiten a líderes empresariales y políticos tomar decisiones estratégicas con mayor claridad.</p>
+        <p>Michael Porter ha producido artículos influyentes que han redefinido conceptos clave en la estrategia empresarial. Entre ellos destaca “What is Strategy?”, un artículo que diferencia claramente entre eficiencia operativa y estrategia competitiva. También es ampliamente reconocido “Creating Shared Value”, donde propone que las empresas pueden generar beneficios económicos creando simultáneamente valor social. Sus publicaciones abarcan también temas como sistemas de salud, competitividad nacional y responsabilidad corporativa. Muchos de sus artículos han sido publicados en Harvard Business Review y son usados como referencia en programas de formación ejecutiva, escuelas de negocios y consultoría especializada en estrategia.</p>
         `
     };
 
@@ -182,172 +182,187 @@ function mostrarInfo(tipo) {
 /* ─────────────────────────────────────────
    QUIZ – PREGUNTAS
 ────────────────────────────────────────── */
+
 const preguntas = [
     {
-    pregunta: "¿Cuál es el objetivo principal del modelo de las 5 Fuerzas de Porter?",
-    opciones: [
-        "Analizar la estructura competitiva de una industria",
-        "Determinar la rentabilidad individual de una empresa",
-        "Evaluar el desempeño financiero anual",
-        "Medir la lealtad de los clientes"
-    ],
-    correcta: 0,
-    pista: "Este modelo sirve para entender qué tan atractiva o rentable es una industria."
-},
-{
-    pregunta: "¿Qué factor aumenta la rivalidad entre competidores?",
-    opciones: [
-        "Mercado saturado con productos similares",
-        "Altas barreras de entrada",
-        "Clientes con poca información",
-        "Proveedores muy diversos"
-    ],
-    correcta: 0,
-    pista: "Mientras más empresas compiten por los mismos clientes, mayor es la rivalidad."
-},
-{
-    pregunta: "¿Qué aumenta el poder de negociación de los clientes?",
-    opciones: [
-        "Existen muchas alternativas para ellos",
-        "La oferta es limitada",
-        "El proveedor es dominante",
-        "Los productos son altamente diferenciados"
-    ],
-    correcta: 0,
-    pista: "Los clientes ganan poder cuando pueden cambiar fácilmente de proveedor."
-},
-{
-    pregunta: "¿Qué condición incrementa la amenaza de nuevos entrantes?",
-    opciones: [
-        "Bajas barreras de entrada",
-        "Alta inversión inicial",
-        "Regulaciones estrictas",
-        "Economías de escala fuertes"
-    ],
-    correcta: 0,
-    pista: "Mientras más fácil es entrar al mercado, mayor es esta amenaza."
-},
-{
-    pregunta: "¿Qué característica define a un producto sustituto?",
-    opciones: [
-        "Satisface la misma necesidad de una forma diferente",
-        "Es vendido por la misma empresa",
-        "Es un accesorio del producto principal",
-        "Solo existe en mercados externos"
-    ],
-    correcta: 0,
-    pista: "Un sustituto compite indirectamente ofreciendo una solución alternativa."
-},
-{
-    pregunta: "¿Cuál de las siguientes situaciones reduce el poder de los proveedores?",
-    opciones: [
-        "Existen múltiples proveedores disponibles",
-        "El proveedor es único",
-        "Los insumos son altamente especializados",
-        "Los costos de cambio son elevados"
-    ],
-    correcta: 0,
-    pista: "Si hay muchas opciones, los proveedores pierden poder."
-},
-{
-    pregunta: "¿Qué elemento puede intensificar la competencia en una industria?",
-    opciones: [
-        "Crecimiento lento del mercado",
-        "Altos costos de salida",
-        "Alta diferenciación",
-        "Fuerte fidelidad de los clientes"
-    ],
-    correcta: 0,
-    pista: "Cuando el mercado no crece, las empresas pelean más por los mismos clientes."
-},
-{
-    pregunta: "¿Qué factor reduce la amenaza de nuevos entrantes?",
-    opciones: [
-        "Patentes y propiedad intelectual",
-        "Bajo capital inicial",
-        "Escasa regulación",
-        "Alta disponibilidad de proveedores"
-    ],
-    correcta: 0,
-    pista: "Las barreras legales fuertes limitan el ingreso de nuevos competidores."
-},
-{
-    pregunta: "¿Qué aumenta el poder de negociación de los proveedores?",
-    opciones: [
-        "Ofrecen un producto único o difícil de sustituir",
-        "Hay muchos competidores en el mercado",
-        "Los clientes tienen mucha información",
-        "La demanda es baja"
-    ],
-    correcta: 0,
-    pista: "Mientras más únicos sean los insumos, mayor poder tienen los proveedores."
-},
-{
-    pregunta: "¿Qué sucede cuando los costos de cambio para los clientes son altos?",
-    opciones: [
-        "Los clientes tienen menos poder",
-        "La amenaza de sustitutos aumenta",
-        "La rivalidad desaparece",
-        "Las barreras de entrada bajan"
-    ],
-    correcta: 0,
-    pista: "Si cambiar de proveedor cuesta mucho, los clientes pierden influencia."
-},
-{
-    pregunta: "¿Qué implica una alta disponibilidad de productos sustitutos?",
-    opciones: [
-        "Los consumidores pueden cambiar fácilmente a otras alternativas",
-        "Los proveedores controlan toda la industria",
-        "No existe competencia indirecta",
-        "Los clientes pierden poder"
-    ],
-    correcta: 0,
-    pista: "Mientras más reemplazos existan, menor es el poder de la empresa principal."
-}
+        pregunta: "¿Cuál es el objetivo principal del modelo de las 5 Fuerzas de Porter?",
+        opciones: [
+            "Analizar la estructura competitiva de una industria",
+            "Determinar la rentabilidad individual de una empresa",
+            "Evaluar el desempeño financiero anual",
+            "Medir la lealtad de los clientes"
+        ],
+        correcta: 0,
+        pista: "Sirve para entender qué tan atractiva es una industria."
+    },
 
+    {
+        pregunta: "¿Qué factor aumenta la rivalidad entre competidores?",
+        opciones: [
+            "Mercado saturado con productos similares",
+            "Altas barreras de entrada",
+            "Clientes con poca información",
+            "Proveedores muy diversos"
+        ],
+        correcta: 0,
+        pista: "Mientras más luchan por los mismos clientes, mayor es la rivalidad."
+    },
+
+    {
+        pregunta: "¿Qué aumenta el poder de negociación de los clientes?",
+        opciones: [
+            "Existen muchas alternativas para ellos",
+            "La oferta es limitada",
+            "El proveedor es dominante",
+            "Los productos son altamente diferenciados"
+        ],
+        correcta: 0,
+        pista: "Si hay varias opciones, tienen poder de elegir."
+    },
+
+    {
+        pregunta: "¿Qué condición incrementa la amenaza de nuevos entrantes?",
+        opciones: [
+            "Bajas barreras de entrada",
+            "Alta inversión inicial",
+            "Regulaciones estrictas",
+            "Economías de escala fuertes"
+        ],
+        correcta: 0,
+        pista: "Cuanto más fácil entrar, mayor la amenaza."
+    },
+
+    {
+        pregunta: "¿Qué define a un producto sustituto?",
+        opciones: [
+            "Satisface la misma necesidad de forma diferente",
+            "Es vendido por la misma empresa",
+            "Es un accesorio del producto principal",
+            "Solo existe en mercados externos"
+        ],
+        correcta: 0,
+        pista: "Ofrece una alternativa indirecta."
+    },
+
+    {
+        pregunta: "¿Cuál situación reduce el poder de los proveedores?",
+        opciones: [
+            "Existen múltiples proveedores disponibles",
+            "El proveedor es único",
+            "Los insumos son altamente especializados",
+            "Los costos de cambio son elevados"
+        ],
+        correcta: 0,
+        pista: "Cuantas más opciones tengas, menos poder tienen ellos."
+    },
+
+    {
+        pregunta: "¿Qué elemento intensifica la competencia?",
+        opciones: [
+            "Crecimiento lento del mercado",
+            "Altos costos de salida",
+            "Alta diferenciación",
+            "Fuerte fidelidad de los clientes"
+        ],
+        correcta: 0,
+        pista: "Si el mercado no crece, se pelea por los mismos clientes."
+    },
+
+    {
+        pregunta: "¿Qué factor reduce la amenaza de nuevos entrantes?",
+        opciones: [
+            "Patentes y propiedad intelectual",
+            "Bajo capital inicial",
+            "Escasa regulación",
+            "Alta disponibilidad de proveedores"
+        ],
+        correcta: 0,
+        pista: "Las barreras legales limitan la entrada."
+    },
+
+    {
+        pregunta: "¿Qué aumenta el poder de negociación de los proveedores?",
+        opciones: [
+            "Ofrecen un producto único o difícil de sustituir",
+            "Hay muchos competidores",
+            "Los clientes tienen mucha información",
+            "La demanda es baja"
+        ],
+        correcta: 0,
+        pista: "Si solo ellos pueden proveerlo, tienen poder."
+    },
+
+    {
+        pregunta: "¿Qué ocurre cuando los costos de cambio son altos?",
+        opciones: [
+            "Los clientes tienen menos poder",
+            "La amenaza de sustitutos aumenta",
+            "La rivalidad desaparece",
+            "Las barreras bajan"
+        ],
+        correcta: 0,
+        pista: "Entre más difícil cambiar, menos poder tiene el cliente."
+    },
+
+    {
+        pregunta: "¿Qué implica una alta disponibilidad de sustitutos?",
+        opciones: [
+            "Los consumidores pueden cambiar fácilmente",
+            "Los proveedores controlan toda la industria",
+            "No existe competencia indirecta",
+            "Los clientes pierden poder"
+        ],
+        correcta: 0,
+        pista: "A más opciones, más riesgo para la empresa."
+    },
+
+    /* LAS 4 PREGUNTAS ADICIONALES */
     {
         pregunta: "¿Qué analiza la fuerza de 'Rivalidad entre competidores'?",
         opciones: [
-            "El nivel de competencia directa dentro de la industria",
+            "El nivel de competencia directa en la industria",
             "El número de proveedores existentes",
             "El poder de negociación de los clientes",
-            "Las barreras de entrada del mercado"
+            "Las barreras de entrada"
         ],
         correcta: 0,
-        pista: "Esta fuerza analiza la intensidad competitiva entre empresas de la misma industria."
+        pista: "Analiza qué tan fuerte es la competencia directa."
     },
+
     {
         pregunta: "¿Qué representa la amenaza de nuevos entrantes?",
         opciones: [
             "El ingreso de empresas que pueden aumentar la competencia",
             "El riesgo de sustitutos",
             "La dependencia de los clientes",
-            "El control de precios por parte de proveedores"
+            "El control de precios de proveedores"
         ],
         correcta: 0,
-        pista: "Evalúa qué tan fácil es ingresar a la industria."
+        pista: "Evalúa qué tan fácil es entrar a la industria."
     },
+
     {
         pregunta: "¿Qué determina el poder de negociación de los proveedores?",
         opciones: [
             "La cantidad de alternativas de suministro",
-            "El marketing utilizado por las empresas",
+            "El marketing de las empresas",
             "El tamaño de la industria",
             "Los clientes potenciales"
         ],
         correcta: 0,
-        pista: "Cuando hay pocos proveedores, pueden imponer condiciones."
+        pista: "Si hay pocas fuentes, tienen poder."
     },
+
     {
         pregunta: "¿Qué representa la amenaza de productos sustitutos?",
         opciones: [
             "Productos que pueden reemplazar la oferta principal",
-            "La entrada de nuevos competidores",
+            "La entrada de competidores",
             "La rivalidad directa",
             "Las barreras de salida"
         ],
         correcta: 0,
-        pista: "Es clave analizar alternativas que resuelvan el mismo problema del cliente."
+        pista: "Son alternativas que resuelven la misma necesidad."
     }
 ];
 
@@ -388,7 +403,7 @@ function cargarPregunta() {
 
 function vibrar() {
     if (navigator.vibrate) {
-        navigator.vibrate(120);
+        navigator.vibrate([80, 50, 80]);
     }
 }
 
@@ -452,5 +467,6 @@ function formatoTiempo(seg) {
 
 </body>
 </html>
+
 
 
