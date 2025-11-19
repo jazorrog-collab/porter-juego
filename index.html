@@ -3,308 +3,263 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Juego de Michael Porter</title>
+<title>Quiz Porter</title>
 
 <style>
-    body {
+    body{
         font-family: Arial, sans-serif;
-        background: #0d1b2a;
-        color: white;
-        margin: 0;
-        padding: 0;
-        text-align: center;
+        background: linear-gradient(160deg,#1c1f26,#2c3240);
+        margin:0;
+        padding:0;
+        color:white;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        min-height:100vh;
+        text-align:center;
     }
 
-    h1, h2 { color: #e0e1dd; }
-
-    .container {
-        max-width: 780px;
-        margin: auto;
-        padding: 20px;
+    .container{
+        width:90%;
+        max-width:600px;
+        background:#ffffff10;
+        padding:25px;
+        border-radius:20px;
+        box-shadow:0 0 20px #0006;
+        backdrop-filter:blur(10px);
     }
 
-    button {
-        background: #1b263b;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        margin: 10px 0;
-        cursor: pointer;
-        transition: 0.2s;
-        width: 90%;
-        font-size: 16px;
+    button{
+        width:100%;
+        padding:12px;
+        background:#4d79ff;
+        border:none;
+        color:white;
+        font-size:17px;
+        border-radius:10px;
+        margin-top:10px;
+        cursor:pointer;
+        transition:.2s;
+    }
+    button:hover{ background:#335fff; }
+
+    .opt{
+        background:#ffffff20;
+    }
+    .opt:hover{
+        background:#ffffff35;
     }
 
-    button:hover { background: #415a77; }
-
-    .start-btn { background: #778da9; font-size: 20px; }
-
-    .option {
-        background: #1b263b;
-        border: 2px solid #415a77;
+    .title{
+        font-size:28px;
+        margin-bottom:20px;
+        font-weight:bold;
     }
 
-    .correct { background: #2d6a4f !important; }
-    .incorrect { background: #9d0208 !important; }
+    .hidden{ display:none; }
 
-    #quiz-screen, #final-screen, #info-screen {
-        display: none;
-        animation: fade 0.5s ease;
+    .home-menu button{
+        background:#ffb84d;
     }
 
-    @keyframes fade {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    #timer {
-        font-size: 22px;
-        padding: 10px;
-        margin-bottom: 10px;
-        color: #fcca46;
-    }
-
-    #hint-box {
-        background: #003049;
-        padding: 12px;
-        margin: 10px 0;
-        border-radius: 8px;
-        display: none;
+    .info-box{
+        background:#ffffff18;
+        padding:15px;
+        border-radius:10px;
+        margin-top:15px;
+        text-align:left;
+        font-size:15px;
+        line-height:1.5;
     }
 </style>
 </head>
-
 <body>
 
-<div class="container" id="start-screen">
-    <h1>Juego de Michael Porter</h1>
-    <p>Aprende sobre estrategia competitiva, ventajas, fuerzas competitivas
-       y conceptos clave del pensamiento de Porter.</p>
+<div class="container">
 
-    <button class="start-btn" onclick="startGame()">Iniciar juego</button>
-    <br>
+    <!-- PANTALLA INICIO -->
+    <div id="home">
+        <div class="title">Quiz de Michael Porter</div>
+        <button onclick="startGame()">Iniciar</button>
 
-    <button onclick="showInfo('bio')">Biografía</button>
-    <button onclick="showInfo('works')">Obras</button>
-    <button onclick="showInfo('pubs')">Publicaciones</button>
+        <div class="home-menu">
+            <button onclick="showInfo('bio')">Biografía</button>
+            <button onclick="showInfo('obras')">Obras</button>
+            <button onclick="showInfo('pubs')">Publicaciones</button>
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <div id="info" class="hidden">
+        <div class="title">Información</div>
+        <div class="info-box" id="infoText"></div>
+        <button onclick="goHome()">Volver</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="hidden">
+        <div class="title" id="questionText"></div>
+        <div id="options"></div>
+        <button id="helpBtn" onclick="giveHint()">Ayuda (3)</button>
+    </div>
+
+    <!-- FINAL -->
+    <div id="end" class="hidden">
+        <div class="title">¡Quiz terminado!</div>
+        <h2 id="scoreText"></h2>
+        <button onclick="goHome()">Volver al inicio</button>
+    </div>
+
 </div>
-
-<!-- SECCIÓN DE INFORMACIÓN -->
-<div class="container" id="info-screen">
-    <h2 id="info-title"></h2>
-    <p id="info-text"></p>
-    <button onclick="goHome()">Volver</button>
-</div>
-
-<!-- QUIZ -->
-<div class="container" id="quiz-screen">
-    <div id="timer">00:00</div>
-    <h2 id="question"></h2>
-    <div id="options"></div>
-
-    <div id="hint-box"></div>
-
-    <button onclick="useHint()">Usar pista (3 disponibles)</button>
-</div>
-
-<!-- PANTALLA FINAL -->
-<div class="container" id="final-screen">
-    <h1>¡Juego completado!</h1>
-    <h2 id="final-score"></h2>
-    <button onclick="location.reload()">Jugar de nuevo</button>
-</div>
-
-<!-- AUDIOS -->
-<audio id="sound-correct" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
-<audio id="sound-wrong" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-buzz-950.mp3"></audio>
-<audio id="sound-end" src="https://assets.mixkit.co/sfx/preview/mixkit-level-completed-2059.mp3"></audio>
 
 <script>
-/* ---------------------- INFO ---------------------------- */
-const infoData = {
-    bio: {
-        title: "Biografía de Michael Porter",
-        text: "Michael E. Porter es profesor de la Universidad de Harvard y uno de los pensadores más influyentes en estrategia moderna. Es reconocido por su modelo de las 5 fuerzas, el concepto de ventaja competitiva y el análisis de clusters. Porter transformó el estudio de la competencia empresarial al introducir un enfoque estructural basado en la industria. Sus investigaciones abarcan competitividad nacional, valor compartido, cadenas de valor y desarrollo económico. Ha asesorado a múltiples gobiernos y corporaciones globales y es considerado el padre de la estrategia competitiva contemporánea."
-    },
-    works: {
-        title: "Principales Obras de Michael Porter",
-        text: "Las obras más destacadas de Porter incluyen 'Competitive Strategy' (1980), donde introduce las 5 fuerzas; 'Competitive Advantage' (1985), donde presenta la cadena de valor; y 'The Competitive Advantage of Nations' (1990), donde analiza la competitividad a nivel país. También desarrolló el concepto del diamante competitivo y escribió sobre responsabilidad social empresarial, clusters económicos y valor compartido. Sus libros han sido traducidos a más de 20 idiomas y se utilizan en escuelas de negocio en todo el mundo."
-    },
-    pubs: {
-        title: "Publicaciones Relevantes",
-        text: "Entre las publicaciones más influyentes de Porter están artículos como 'What is Strategy?' publicado en Harvard Business Review, uno de los artículos más leídos en la historia de la revista. También destacan sus investigaciones sobre valor compartido, sistemas de salud, competitividad regional y medición de la productividad. Su trabajo continúa siendo referencia obligatoria en estrategia, políticas públicas y economía empresarial."
-    }
-};
+/* ========= SONIDOS EN BASE64 (NO NECESITAS ARCHIVOS) ========= */
+let correctSound = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwMAAAAAAAAAAAAAAA//tQxAADBQBCf2YAACQAAAACAAACcQCAAAAgAAABkYXRhAAAAAA==");
+let wrongSound   = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwMAAAAAAAAAAAAAAA//tQxAABAgBCf2YAAAgAAAACAAACcQCAAAAgAAABkYXRhAAAAAA==");
+let finishSound  = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwMAAAAAAAAAAAAAAA//tQxAABAQBif2YAABQAAAACAAACcQCAAAAgAAABkYXRhAAAAAA==");
 
-function showInfo(type) {
-    document.getElementById("start-screen").style.display = "none";
-    document.getElementById("info-screen").style.display = "block";
-    document.getElementById("info-title").innerText = infoData[type].title;
-    document.getElementById("info-text").innerText = infoData[type].text;
-}
-
-function goHome() {
-    document.getElementById("info-screen").style.display = "none";
-    document.getElementById("start-screen").style.display = "block";
-}
-
-/* ------------------------ PREGUNTAS ---------------------------- */
-
-const questions = [
-    { q: "¿Cuál es uno de los aportes más conocidos de Michael Porter?",
-      options: ["Las 5 fuerzas", "Las 3R", "Matriz BCG"],
-      answer: 0,
-      hint: "Sirve para analizar el nivel de competencia." },
-
-    { q: "¿Qué representa la cadena de valor?",
-      options: ["Actividades internas", "Estados financieros", "Ventas mensuales"],
-      answer: 0,
-      hint: "Describe cómo la empresa crea valor paso a paso." },
-
-    { q: "¿Qué busca la estrategia competitiva?",
-      options: ["Ser diferente", "Imitar al rival", "Reducir marketing"],
-      answer: 0,
-      hint: "La diferenciación es clave." },
-
-    { q: "Una fuerza del modelo de Porter es:",
-      options: ["Rivalidad", "Cultura", "Tamaño"],
-      answer: 0,
-      hint: "Es la competencia entre empresas del mismo sector." },
-
-    /* --- 11 preguntas nuevas --- */
-    { q: "El poder de negociación de proveedores evalúa:",
-      options: ["Su influencia en costos", "El clima", "Ventas globales"],
-      answer: 0,
-      hint: "Afecta los precios y la disponibilidad." },
-
-    { q: "La amenaza de sustitutos implica:",
-      options: ["Productos alternos", "Empleados nuevos", "Oficinas"],
-      answer: 0,
-      hint: "Un ejemplo son apps vs taxis." },
-
-    { q: "¿Qué mide el diamante de Porter?",
-      options: ["Competitividad nacional", "Clima", "Marketing"],
-      answer: 0,
-      hint: "Se usa para evaluar países." },
-
-    { q: "Valor compartido significa:",
-      options: ["Beneficio social + económico", "Solo utilidad", "Sólo RSE"],
-      answer: 0,
-      hint: "Busca impactar sociedad y empresa." },
-
-    { q: "Una ventaja competitiva sostenible es:",
-      options: ["Difícil de copiar", "Costosa", "Pequeña"],
-      answer: 0,
-      hint: "Puede ser tecnología o marca fuerte." },
-
-    { q: "El análisis de industria sirve para:",
-      options: ["Predecir competencia", "Diseñar logos", "Elegir colores"],
-      answer: 0,
-      hint: "Es el primer paso de la estrategia." },
-
-    { q: "Los clusters económicos son:",
-      options: ["Concentración de empresas", "Robots", "Aplicaciones"],
-      answer: 0,
-      hint: "Se agrupan en un territorio." }
+/* ========= PREGUNTAS ========= */
+let questions = [
+    { q:"¿Qué modelo creó Porter para analizar industrias?", options:["5 fuerzas","Estrategia azul","3 pasos"], answer:0, hint:"Analiza la competencia" },
+    { q:"¿Qué es la cadena de valor?", options:["Proveedores","Actividades internas","Ingresos"], answer:1, hint:"Describe cómo creas valor" },
+    { q:"¿Qué busca la estrategia?", options:["Imitar","Ser diferente","Gastar menos"], answer:1, hint:"Implica diferenciación" },
+    { q:"Una fuerza es:", options:["Marketing","Rivalidad","Clima"], answer:1, hint:"Competencia entre empresas" },
+    { q:"¿Qué mide el diamante de Porter?", options:["Ventas","Competitividad","Publicidad"], answer:1, hint:"Nivel país" },
+    { q:"¿Qué son sustitutos?", options:["Impuestos","Alternativas","Gerentes"], answer:1, hint:"Ej: taxi vs Uber" },
+    { q:"¿Qué es valor compartido?", options:["Caridad","Social+económico","Solo dinero"], answer:1, hint:"Beneficia empresa y sociedad" },
+    { q:"¿Qué define ventaja competitiva?", options:["Ahorrar","Publicidad","Diferencia difícil de copiar"], answer:2, hint:"Puede ser tecnología" },
+    { q:"¿Qué es un cluster?", options:["Apps","Empresas agrupadas","Cloud"], answer:1, hint:"En un territorio" },
+    { q:"¿Qué amenaza evalúa Porter?", options:["Nuevos entrantes","Precio","Gerencia"], answer:0, hint:"Nueva competencia" },
+    { q:"Ejemplo de cadena de valor:", options:["Logística","Inversores","Contabilidad"], answer:0, hint:"Procesos internos" },
+    { q:"La rivalidad aumenta cuando:", options:["Caros","Muchos competidores","Pocos"], answer:1, hint:"Más empresas → más rivalidad" },
+    { q:"Un proveedor fuerte puede:", options:["Contratar","Subir costos","Vender más"], answer:1, hint:"Aumenta precios" },
+    { q:"Un diferenciador común es:", options:["Marca","Impuestos","Salarios"], answer:0, hint:"Percepción del cliente" },
+    { q:"Una estrategia clara evita:", options:["Innovar","Competir en todo","Planear"], answer:1, hint:"No puedes ser todo a la vez" },
+    { q:"Una barrera de entrada es:", options:["Publicidad","Patentes","Ventas"], answer:1, hint:"Protege industria" },
+    { q:"Porter nació en:", options:["Brasil","EEUU","México"], answer:1, hint:"En Norteamérica" },
+    { q:"Las 5 fuerzas predicen:", options:["Salarios","Rentabilidad","Bonos"], answer:1, hint:"Ganancias del sector" },
+    { q:"Ejemplo de sustituto:", options:["Hélice","Cable","Videollamadas vs viajes"], answer:2, hint:"Reducen la demanda del original" },
+    { q:"¿Qué es estrategia?", options:["Copiar","Elegir qué no hacer","Improvisar"], answer:1, hint:"Límite claro" }
 ];
 
-let index = 0;
+let current = 0;
 let score = 0;
-let hints = 3;
-let time = 0;
-let timerInterval;
+let helpLeft = 3;
 
-/* ----------------------- TIMER ---------------------- */
-function startTimer() {
-    timerInterval = setInterval(() => {
-        time++;
-        const m = String(Math.floor(time / 60)).padStart(2, "0");
-        const s = String(time % 60).padStart(2, "0");
-        document.getElementById("timer").innerText = `${m}:${s}`;
-    }, 1000);
+/* ========= MOSTRAR INFO ========= */
+function showInfo(type){
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("info").classList.remove("hidden");
+
+    const infoText = document.getElementById("infoText");
+
+    if(type==="bio"){
+        infoText.innerHTML = `
+            Michael E. Porter es un economista estadounidense reconocido 
+            mundialmente por sus contribuciones al análisis estratégico y la 
+            competitividad empresarial. Nacido en 1947, se convirtió en uno de 
+            los académicos más influyentes de Harvard. Sus teorías han moldeado 
+            cómo las empresas y los gobiernos comprenden la competencia, las 
+            industrias y el desarrollo económico. Porter integró conceptos de 
+            economía industrial con estrategia empresarial, creando herramientas 
+            como las 5 Fuerzas, el Diamante de Competitividad y la Cadena de Valor.
+        `;
+    }
+    if(type==="obras"){
+        infoText.innerHTML = `
+            Entre las obras más influyentes de Porter destacan “Competitive 
+            Strategy” (1980), donde conceptualizó las 5 Fuerzas; “Competitive 
+            Advantage” (1985), donde presenta la cadena de valor; y “The 
+            Competitive Advantage of Nations” (1990), donde introduce el 
+            Diamante de Porter. Su trabajo también abarca estrategia social, 
+            valor compartido y competitividad territorial.
+        `;
+    }
+    if(type==="pubs"){
+        infoText.innerHTML = `
+            Porter ha publicado decenas de artículos académicos en revistas 
+            como Harvard Business Review. Entre los más influyentes se encuentran 
+            “What is Strategy?”, “The Five Competitive Forces That Shape Strategy”, 
+            y “Creating Shared Value”. Estas publicaciones han guiado tanto a 
+            directivos como a gobiernos en el diseño de estrategias sostenibles.
+        `;
+    }
 }
 
-/* -------------------- INICIAR JUEGO -------------------- */
-function startGame() {
-    document.getElementById("start-screen").style.display = "none";
-    document.getElementById("quiz-screen").style.display = "block";
-    startTimer();
+function goHome(){
+    document.getElementById("info").classList.add("hidden");
+    document.getElementById("end").classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+}
+
+/* ========= INICIAR ========= */
+function startGame(){
+    current = 0;
+    score = 0;
+    helpLeft = 3;
+
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("end").classList.add("hidden");
+    document.getElementById("quiz").classList.remove("hidden");
+
     loadQuestion();
 }
 
-/* ---------------------- CARGAR PREGUNTA ---------------------- */
-function loadQuestion() {
-    const q = questions[index];
-    document.getElementById("question").innerText = q.q;
+/* ========= CARGAR PREGUNTA ========= */
+function loadQuestion(){
+    const q = questions[current];
+    document.getElementById("questionText").innerText = q.q;
 
-    const box = document.getElementById("options");
-    box.innerHTML = "";
+    let opts = [...q.options];
 
-    q.options.forEach((opt, i) => {
-        let btn = document.createElement("button");
-        btn.classList.add("option");
-        btn.innerText = opt;
-        btn.onclick = () => checkAnswer(i, btn);
-        box.appendChild(btn);
+    // Crear botones
+    let html = "";
+    opts.forEach((opt,i)=>{
+        html += `<button class="opt" onclick="check(${i})">${opt}</button>`;
     });
 
-    document.getElementById("hint-box").style.display = "none";
+    document.getElementById("options").innerHTML = html;
+    document.getElementById("helpBtn").innerText = `Ayuda (${helpLeft})`;
 }
 
-/* -------------------- RESPONDER -------------------- */
-function checkAnswer(selected, element) {
+/* ========= EVALUAR ========= */
+function check(opt){
+    const q = questions[current];
 
-    vibrate(60);
-
-    const q = questions[index];
-    const correctSound = document.getElementById("sound-correct");
-    const wrongSound = document.getElementById("sound-wrong");
-
-    if (selected === q.answer) {
-        element.classList.add("correct");
-        score += 10;
+    if(opt===q.answer){
+        score++;
         correctSound.play();
+        if(navigator.vibrate) navigator.vibrate(120);
     } else {
-        element.classList.add("incorrect");
         wrongSound.play();
+        if(navigator.vibrate) navigator.vibrate([100,40,100]);
     }
 
-    setTimeout(() => {
-        index++;
-        if (index >= questions.length) finishGame();
-        else loadQuestion();
-    }, 800);
+    current++;
+    if(current>=questions.length){
+        endGame();
+    } else {
+        setTimeout(loadQuestion,400);
+    }
 }
 
-/* ---------------- PISTAS ---------------- */
-function useHint() {
-    if (hints <= 0) return;
+/* ========= AYUDA ========= */
+function giveHint(){
+    if(helpLeft<=0) return;
 
-    hints--;
-    score -= 3;
+    helpLeft--;
+    score -= 0.5;
 
-    vibrate(40);
-
-    const box = document.getElementById("hint-box");
-    box.style.display = "block";
-    box.innerText = "Pista: " + questions[index].hint;
+    alert("Pista: " + questions[current].hint);
+    document.getElementById("helpBtn").innerText = `Ayuda (${helpLeft})`;
 }
 
-/* ---------------- VIBRACIÓN ---------------- */
-function vibrate(ms) {
-    if (navigator.vibrate) navigator.vibrate(ms);
-}
-
-/* ---------------- FINAL ---------------- */
-function finishGame() {
-    clearInterval(timerInterval);
-    document.getElementById("quiz-screen").style.display = "none";
-    document.getElementById("final-screen").style.display = "block";
-    document.getElementById("final-score").innerText =
-        `Puntaje final: ${score} puntos`;
-
-    document.getElementById("sound-end").play();
+/* ========= FINAL ========= */
+function endGame(){
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("end").classList.remove("hidden");
+    document.getElementById("scoreText").innerText = `Puntaje final: ${score}`;
+    finishSound.play();
 }
 </script>
 
