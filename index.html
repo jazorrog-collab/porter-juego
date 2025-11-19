@@ -1,124 +1,194 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Porter</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quiz Porter — Estilo App Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-    body{
-        font-family: Arial, sans-serif;
-        background: linear-gradient(160deg,#1c1f26,#2c3240);
-        margin:0;
-        padding:0;
-        color:white;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        min-height:100vh;
-        text-align:center;
-    }
+  :root{
+    --bg1:#022c59; --bg2:#0466c8; --card:#ffffff; --accent:#00b4d8;
+    --muted:#90a4c0; --good:#2dd4bf; --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#032a4a;display:flex;align-items:center;justify-content:center;padding:18px}
+  .app{
+    width:100%;max-width:820px;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+    border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);backdrop-filter:blur(6px);
+  }
 
-    .container{
-        width:90%;
-        max-width:600px;
-        background:#ffffff10;
-        padding:25px;
-        border-radius:20px;
-        box-shadow:0 0 20px #0006;
-        backdrop-filter:blur(10px);
-    }
+  /* Intro animated screen */
+  .intro{
+    display:flex;gap:18px;align-items:center;
+    justify-content:space-between;flex-wrap:wrap;
+  }
+  .intro-left{flex:1;min-width:260px;color:white}
+  .title{font-size:22px;margin:0 0 8px 0;font-weight:800}
+  .lead{color:rgba(255,255,255,0.92);margin:0 0 12px 0}
+  .cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 
-    button{
-        width:100%;
-        padding:12px;
-        background:#4d79ff;
-        border:none;
-        color:white;
-        font-size:17px;
-        border-radius:10px;
-        margin-top:10px;
-        cursor:pointer;
-        transition:.2s;
-    }
-    button:hover{ background:#335fff; }
+  .soundCard{
+    background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:220px;
+  }
+  .bigIcon{
+    width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#ffffff33,#ffffff11);display:flex;align-items:center;justify-content:center;color:white;font-size:36px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  }
+  .btn{
+    background:white;color:var(--bg2);border:none;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,0.18);
+  }
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:white}
 
-    .opt{
-        background:#ffffff20;
-    }
-    .opt:hover{
-        background:#ffffff35;
-    }
+  /* Game Screen */
+  .game{display:none;flex-direction:column;gap:14px}
+  .topBar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .timer{background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:white;font-weight:700;min-width:110px;text-align:center}
+  .score{background:rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:white}
+  .questionCard{background:var(--card);border-radius:14px;padding:18px;color:#062030;box-shadow:0 8px 25px rgba(3,40,80,0.08)}
+  .qtext{font-weight:700;font-size:18px;margin:0 0 10px 0}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .opt{background:#f4fbff;border-radius:10px;padding:12px;border:1px solid #e6f0fb;cursor:pointer;text-align:left;transition:transform .12s, box-shadow .12s}
+  .opt:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(3,40,80,0.06)}
+  .opt.correct{background:linear-gradient(90deg,#def7ee,#d1fae5);border-color:#9be7c2;outline:3px solid rgba(39,199,152,0.08)}
+  .opt.wrong{background:linear-gradient(90deg,#ffecec,#ffdede);border-color:#ff9b9b}
 
-    .title{
-        font-size:28px;
-        margin-bottom:20px;
-        font-weight:bold;
-    }
+  .hint{margin-top:10px;padding:10px;background:#fff7e6;border-left:4px solid #ffd27a;border-radius:8px;color:#5b3f00}
 
-    .hidden{ display:none; }
+  .progressWrap{height:10px;background:rgba(0,0,0,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
+  .progressBar{height:100%;width:0%;background:linear-gradient(90deg,#00b4d8,#0077b6)}
 
-    .home-menu button{
-        background:#ffb84d;
-    }
+  .feedback{
+    margin-top:8px;font-weight:700;font-size:16px;
+  }
 
-    .info-box{
-        background:#ffffff18;
-        padding:15px;
-        border-radius:10px;
-        margin-top:15px;
-        text-align:left;
-        font-size:15px;
-        line-height:1.5;
-    }
+  /* footer controls */
+  .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .helpBtn{background:#ffd166;color:#0b2b3a;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+
+  /* final screen */
+  .final{display:none;text-align:center;padding:18px}
+  .final h2{margin:6px 0 12px 0}
+
+  /* responsive */
+  @media (max-width:680px){
+    .bigIcon{width:78px;height:78px;font-size:30px}
+    .title{font-size:20px}
+  }
 </style>
 </head>
 <body>
-
-<div class="container">
-
-    <!-- PANTALLA INICIO -->
-    <div id="home">
-        <div class="title">Quiz de Michael Porter</div>
-        <button onclick="startGame()">Iniciar</button>
-
-        <div class="home-menu">
-            <button onclick="showInfo('bio')">Biografía</button>
-            <button onclick="showInfo('obras')">Obras</button>
-            <button onclick="showInfo('pubs')">Publicaciones</button>
+  <div class="app" role="application" aria-label="Quiz de Michael Porter - App game">
+    <!-- Intro (activación de audio) -->
+    <div id="intro" class="intro">
+      <div class="intro-left">
+        <h1 class="title">Quiz interactivo: Michael Porter</h1>
+        <p class="lead">Ponte a prueba con preguntas de estrategia. Responde rápido para ganar más puntos — estilo Kahoot. Usa ayudas con moderación.</p>
+        <div class="cta">
+          <button id="startNoSound" class="btn-ghost" onclick="showGameNoSound()">Entrar sin sonido</button>
         </div>
+      </div>
+
+      <div class="soundCard" aria-hidden="false">
+        <div class="bigIcon">🔊</div>
+        <div style="color:white;font-weight:700">Activa sonido</div>
+        <div style="color:rgba(255,255,255,0.9);font-size:14px;max-width:240px">
+          Presiona para habilitar efectos sonoros y vibración. Recomendado para mejor experiencia.
+        </div>
+        <button id="activateSound" class="btn" onclick="activateAudio()">Activar sonido</button>
+      </div>
     </div>
 
-    <!-- INFO -->
-    <div id="info" class="hidden">
-        <div class="title">Información</div>
-        <div class="info-box" id="infoText"></div>
-        <button onclick="goHome()">Volver</button>
+    <!-- Game -->
+    <div id="game" class="game hidden">
+      <div class="topBar">
+        <div class="timer" id="timer">10</div>
+        <div class="score" id="score">Puntaje: 0</div>
+      </div>
+
+      <div class="questionCard">
+        <div class="qtext" id="qtext">Pregunta...</div>
+        <div class="options" id="options"></div>
+
+        <div class="progressWrap" aria-hidden="true">
+          <div class="progressBar" id="progressBar"></div>
+        </div>
+
+        <div id="hintBox" class="hint" style="display:none"></div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <div class="controls">
+        <button id="helpBtn" class="helpBtn" onclick="useHelp()">Ayuda (-50)</button>
+        <button class="btn-ghost" onclick="endEarly()">Finalizar</button>
+      </div>
     </div>
 
-    <!-- QUIZ -->
-    <div id="quiz" class="hidden">
-        <div class="title" id="questionText"></div>
-        <div id="options"></div>
-        <button id="helpBtn" onclick="giveHint()">Ayuda (3)</button>
+    <!-- Final -->
+    <div id="final" class="final hidden">
+      <h2>¡Juego terminado!</h2>
+      <div id="finalScore" style="font-weight:800;font-size:20px"></div>
+      <div style="margin-top:8px;color:var(--muted)" id="finalTime"></div>
+      <div style="margin-top:12px">
+        <button class="btn" onclick="restart()">Jugar otra vez</button>
+      </div>
     </div>
 
-    <!-- FINAL -->
-    <div id="end" class="hidden">
-        <div class="title">¡Quiz terminado!</div>
-        <h2 id="scoreText"></h2>
-        <button onclick="goHome()">Volver al inicio</button>
-    </div>
-
-</div>
+  </div>
 
 <script>
-/* ========= SONIDOS EN BASE64 (NO NECESITAS ARCHIVOS) ========= */
-let correctSound = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwMAAAAAAAAAAAAAAA//tQxAADBQBCf2YAACQAAAACAAACcQCAAAAgAAABkYXRhAAAAAA==");
-let wrongSound   = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwMAAAAAAAAAAAAAAA//tQxAABAgBCf2YAAAgAAAACAAACcQCAAAAgAAABkYXRhAAAAAA==");
-let finishSound  = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjM3LjEwMAAAAAAAAAAAAAAA//tQxAABAQBif2YAABQAAAACAAACcQCAAAAgAAABkYXRhAAAAAA==");
+/* ==========================
+   WebAudio - síntesis (no depende de archivos)
+   ========================== */
+let audioCtx = null;
+function ensureAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+function resumeAudioIfNeeded() {
+  if (!audioCtx) ensureAudioContext();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playToneSequence(seq) {
+  // seq = [{freq,dur, type, gain, delayAfter}]
+  resumeAudioIfNeeded();
+  const now = audioCtx.currentTime;
+  seq.reduce((acc, s) => {
+    const start = now + acc;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = s.type || 'sine';
+    o.frequency.value = s.freq;
+    g.gain.value = s.gain || 0.06;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(start);
+    o.stop(start + s.dur/1000);
+    return acc + (s.dur + (s.delayAfter || 0))/1000;
+  }, 0);
+}
+function playCorrectSound(){
+  playToneSequence([
+    {freq:880, dur:120, type:'sine', gain:0.06, delayAfter:20},
+    {freq:1100, dur:120, type:'sine', gain:0.06}
+  ]);
+}
+function playWrongSound(){
+  playToneSequence([{freq:220, dur:220, type:'sawtooth', gain:0.08}]);
+}
+function playFinalSound(){
+  playToneSequence([
+    {freq:660, dur:140, type:'sine', gain:0.06, delayAfter:40},
+    {freq:880, dur:160, type:'sine', gain:0.06, delayAfter:40},
+    {freq:1040, dur:220, type:'sine', gain:0.07}
+  ]);
+}
 
-/* ========= PREGUNTAS ========= */
+/* ==========================
+   Data preguntas (20), respuestas ya ubicadas correctamente
+   ========================== */
 let questions = [
     { q:"¿Qué modelo creó Porter para analizar industrias?", options:["5 fuerzas","Estrategia azul","3 pasos"], answer:0, hint:"Analiza la competencia" },
     { q:"¿Qué es la cadena de valor?", options:["Proveedores","Actividades internas","Ingresos"], answer:1, hint:"Describe cómo creas valor" },
@@ -142,127 +212,294 @@ let questions = [
     { q:"¿Qué es estrategia?", options:["Copiar","Elegir qué no hacer","Improvisar"], answer:1, hint:"Límite claro" }
 ];
 
-let current = 0;
+/* shuffle questions order */
+questions = questions.sort(()=> Math.random() - 0.5);
+
+/* state variables */
+let currentIndex = 0;
 let score = 0;
 let helpLeft = 3;
+let questionMaxTime = 12; // seconds per question
+let timeLeft = questionMaxTime;
+let timerInterval = null;
+let questionStartTime = 0;
+let audioActivated = false;
 
-/* ========= MOSTRAR INFO ========= */
-function showInfo(type){
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("info").classList.remove("hidden");
+/* UI refs */
+const introEl = document.getElementById('intro');
+const gameEl = document.getElementById('game');
+const finalEl = document.getElementById('final');
+const qtext = document.getElementById('qtext');
+const optionsEl = document.getElementById('options');
+const timerEl = document.getElementById('timer');
+const scoreEl = document.getElementById('score');
+const progressBar = document.getElementById('progressBar');
+const hintBox = document.getElementById('hintBox');
+const feedbackEl = document.getElementById('feedback');
+const helpBtn = document.getElementById('helpBtn');
 
-    const infoText = document.getElementById("infoText");
-
-    if(type==="bio"){
-        infoText.innerHTML = `
-            Michael E. Porter es un economista estadounidense reconocido 
-            mundialmente por sus contribuciones al análisis estratégico y la 
-            competitividad empresarial. Nacido en 1947, se convirtió en uno de 
-            los académicos más influyentes de Harvard. Sus teorías han moldeado 
-            cómo las empresas y los gobiernos comprenden la competencia, las 
-            industrias y el desarrollo económico. Porter integró conceptos de 
-            economía industrial con estrategia empresarial, creando herramientas 
-            como las 5 Fuerzas, el Diamante de Competitividad y la Cadena de Valor.
-        `;
-    }
-    if(type==="obras"){
-        infoText.innerHTML = `
-            Entre las obras más influyentes de Porter destacan “Competitive 
-            Strategy” (1980), donde conceptualizó las 5 Fuerzas; “Competitive 
-            Advantage” (1985), donde presenta la cadena de valor; y “The 
-            Competitive Advantage of Nations” (1990), donde introduce el 
-            Diamante de Porter. Su trabajo también abarca estrategia social, 
-            valor compartido y competitividad territorial.
-        `;
-    }
-    if(type==="pubs"){
-        infoText.innerHTML = `
-            Porter ha publicado decenas de artículos académicos en revistas 
-            como Harvard Business Review. Entre los más influyentes se encuentran 
-            “What is Strategy?”, “The Five Competitive Forces That Shape Strategy”, 
-            y “Creating Shared Value”. Estas publicaciones han guiado tanto a 
-            directivos como a gobiernos en el diseño de estrategias sostenibles.
-        `;
-    }
+/* Activate audio button */
+function activateAudio(){
+  ensureAudioContext();
+  // resume on user gesture
+  audioCtx.resume().then(()=> {
+    audioActivated = true;
+    // small confirmation sound & vibrate
+    playToneSequence([{freq:880,dur:100,gain:0.05}]);
+    navigatorVibrate([30]);
+    // start game immediately after activation
+    startGame();
+  }).catch(()=> {
+    // fallback: still proceed
+    audioActivated = true;
+    startGame();
+  });
 }
 
-function goHome(){
-    document.getElementById("info").classList.add("hidden");
-    document.getElementById("end").classList.add("hidden");
-    document.getElementById("home").classList.remove("hidden");
+/* allow entering without sound */
+function showGameNoSound(){
+  audioActivated = false;
+  startGame();
 }
 
-/* ========= INICIAR ========= */
+/* vibration helper */
+function navigatorVibrate(pattern){
+  try{ if(navigator.vibrate) navigator.vibrate(pattern); } catch(e){}
+}
+
+/* Start the game */
 function startGame(){
-    current = 0;
-    score = 0;
-    helpLeft = 3;
-
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("end").classList.add("hidden");
-    document.getElementById("quiz").classList.remove("hidden");
-
-    loadQuestion();
+  introEl.style.display = 'none';
+  finalEl.classList.add('hidden');
+  gameEl.style.display = 'flex';
+  // reset stats
+  currentIndex = 0; score = 0; helpLeft = 3;
+  scoreEl.innerText = `Puntaje: ${score}`;
+  helpBtn.innerText = `Ayuda (-50) (${helpLeft})`;
+  loadQuestion();
 }
 
-/* ========= CARGAR PREGUNTA ========= */
+/* Load question and shuffle options positions */
 function loadQuestion(){
-    const q = questions[current];
-    document.getElementById("questionText").innerText = q.q;
-
-    let opts = [...q.options];
-
-    // Crear botones
-    let html = "";
-    opts.forEach((opt,i)=>{
-        html += `<button class="opt" onclick="check(${i})">${opt}</button>`;
-    });
-
-    document.getElementById("options").innerHTML = html;
-    document.getElementById("helpBtn").innerText = `Ayuda (${helpLeft})`;
-}
-
-/* ========= EVALUAR ========= */
-function check(opt){
-    const q = questions[current];
-
-    if(opt===q.answer){
-        score++;
-        correctSound.play();
-        if(navigator.vibrate) navigator.vibrate(120);
-    } else {
-        wrongSound.play();
-        if(navigator.vibrate) navigator.vibrate([100,40,100]);
+  clearInterval(timerInterval);
+  hintBox.style.display = 'none';
+  feedbackEl.innerText = '';
+  const q = questions[currentIndex];
+  // keep correct answer text to compare after shuffling
+  const correctText = q.options[q.answer];
+  // shuffle options copy
+  const opts = q.options.map(o=>o).sort(()=> Math.random()-0.5);
+  // render
+  qtext.innerText = `(${currentIndex+1}/${questions.length}) ${q.q}`;
+  optionsEl.innerHTML = '';
+  opts.forEach((optText, idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerText = optText;
+    btn.disabled = false;
+    btn.onclick = ()=> selectOption(btn, optText, correctText);
+    optionsEl.appendChild(btn);
+  });
+  // store mapping in DOM for later reveal
+  optionsEl.dataset.correct = correctText;
+  // start timer for question
+  timeLeft = questionMaxTime;
+  timerEl.innerText = timeLeft;
+  progressBar.style.width = '100%';
+  questionStartTime = Date.now();
+  timerInterval = setInterval(()=> {
+    timeLeft--;
+    if(timeLeft < 0) timeLeft = 0;
+    timerEl.innerText = timeLeft;
+    progressBar.style.width = (timeLeft / questionMaxTime * 100) + '%';
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      // auto reveal as incorrect if time runs out
+      handleTimeout();
     }
+  },1000);
+}
 
-    current++;
-    if(current>=questions.length){
-        endGame();
+/* when user times out */
+function handleTimeout(){
+  revealCorrectAndMark(null, 'timeout');
+  feedbackEl.style.color = 'var(--bad)';
+  feedbackEl.innerText = 'Se acabó el tiempo — incorrecto';
+  // play wrong sound
+  try{ playWrongSound(); } catch(e){}
+  navigatorVibrate([120,40,80]);
+  setTimeout(nextQuestion, 1200);
+}
+
+/* selecting an option */
+function selectOption(btnEl, selectedText, correctText){
+  // disable further clicks
+  const all = optionsEl.querySelectorAll('button');
+  all.forEach(b=> b.disabled = true);
+  clearInterval(timerInterval);
+
+  // determine correctness
+  const correct = (selectedText === correctText);
+
+  // reveal correct/wrong visuals
+  revealCorrectAndMark(selectedText, 'select');
+
+  // compute points like Kahoot: higher if faster
+  const elapsed = (Date.now() - questionStartTime)/1000; // seconds
+  const remaining = Math.max(0, questionMaxTime - elapsed);
+  // scoring formula: base 100 + up to 150 bonus proportional to remaining
+  let pointsGained = 0;
+  if(correct){
+    pointsGained = Math.round(100 + (remaining / questionMaxTime) * 150);
+    score += pointsGained;
+    feedbackEl.style.color = '#0b6b4a';
+    feedbackEl.innerText = `Correcto +${pointsGained} ptos`;
+    try{ playCorrectSound(); } catch(e){}
+    navigatorVibrate( [30,10,30] );
+  } else {
+    // penalty small for wrong (no negative large)
+    const penalty = 0;
+    score = Math.max(0, score - penalty);
+    feedbackEl.style.color = 'var(--bad)';
+    feedbackEl.innerText = `Incorrecto`;
+    try{ playWrongSound(); } catch(e){}
+    navigatorVibrate([90,40,90]);
+  }
+  scoreEl.innerText = `Puntaje: ${score}`;
+  // move to next after short delay
+  setTimeout(nextQuestion, 1000);
+}
+
+/* reveal correct and mark chosen wrong/green */
+function revealCorrectAndMark(selectedText, reason){
+  const corr = optionsEl.dataset.correct;
+  const all = Array.from(optionsEl.querySelectorAll('button'));
+  all.forEach(b=>{
+    if(b.innerText === corr){
+      b.classList.add('correct');
+    } else if(selectedText && b.innerText === selectedText){
+      b.classList.add('wrong');
     } else {
-        setTimeout(loadQuestion,400);
+      // leave neutral
     }
+  });
 }
 
-/* ========= AYUDA ========= */
-function giveHint(){
-    if(helpLeft<=0) return;
-
-    helpLeft--;
-    score -= 0.5;
-
-    alert("Pista: " + questions[current].hint);
-    document.getElementById("helpBtn").innerText = `Ayuda (${helpLeft})`;
+/* help/hint logic */
+function useHelp(){
+  if(helpLeft <= 0) return;
+  helpLeft--;
+  // deduct points immediately
+  score = Math.max(0, score - 50);
+  scoreEl.innerText = `Puntaje: ${score}`;
+  helpBtn.innerText = `Ayuda (-50) (${helpLeft})`;
+  // show hint text
+  hintBox.style.display = 'block';
+  hintBox.innerText = `Pista: ${questions[currentIndex].hint}`;
+  // vibrate and subtle sound
+  navigatorVibrate([20,10,20]);
+  try{ playToneSequence([{freq:600,dur:120,gain:0.05}]); } catch(e){}
 }
 
-/* ========= FINAL ========= */
+/* proceed to next question or finish */
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex >= questions.length){
+    endGame();
+  } else {
+    loadQuestion();
+  }
+}
+
+/* finishing the game */
 function endGame(){
-    document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("end").classList.remove("hidden");
-    document.getElementById("scoreText").innerText = `Puntaje final: ${score}`;
-    finishSound.play();
+  clearInterval(timerInterval);
+  gameEl.style.display = 'none';
+  finalEl.classList.remove('hidden');
+  finalEl.style.display = 'block';
+  const totalTime = 0; // not tracking total here separately
+  document.getElementById('finalScore').innerText = `Puntaje final: ${score} pts`;
+  document.getElementById('finalTime').innerText = '';
+  try{ playFinalSound(); } catch(e){}
+  navigatorVibrate([40,30,40]);
 }
-</script>
 
+/* allow early finish */
+function endEarly(){
+  endGame();
+}
+
+/* restart function */
+function restart(){
+  // reset and go home to intro
+  introEl.style.display = 'block';
+  gameEl.style.display = 'none';
+  finalEl.style.display = 'none';
+  location.reload();
+}
+
+/* Utility: small playToneSequence wrapper used before audioCtx exists */
+function playToneSequence(seq){
+  // if audio not activated, do nothing
+  try {
+    if(!audioActivated) return;
+  } catch(e){}
+  playToneSequence; // avoid lint
+}
+
+// Ensure playToneSequence reference from above is accessible in other contexts
+// (we previously declared a function with same name; overwritten in some branches)
+function playToneSequence(seq){
+  // call the WebAudio function defined earlier
+  // reuse playToneSequence defined at top-level (already defined), so simply call playToneSequenceInternal
+  try{
+    // call global internal implementation defined near top (playToneSequence)
+    // but since we redefined, call playToneSequenceInternal (we will map)
+    if(typeof window.playToneSequenceInternal === 'function'){
+      window.playToneSequenceInternal(seq);
+    } else {
+      // fallback: use simple beep
+      try{ ensureAudioContext(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = seq[0].freq||440; g.gain.value = seq[0].gain||0.05; o.start(); setTimeout(()=>o.stop(), seq[0].dur||120); } catch(e){}
+    }
+  } catch(e){}
+}
+// Map internal function name used earlier correctly
+window.playToneSequenceInternal = (function(){
+  // closure to use audioCtx
+  return function(seq){
+    resumeAudioIfNeeded();
+    const now = audioCtx.currentTime;
+    seq.reduce((acc, s) => {
+      const start = now + acc;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = s.type || 'sine';
+      o.frequency.value = s.freq;
+      g.gain.value = s.gain || 0.06;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(start);
+      o.stop(start + s.dur/1000);
+      return acc + (s.dur + (s.delayAfter || 0))/1000;
+    }, 0);
+  };
+})();
+
+/* Hook: ensure correct global functions are used for sounds */
+function playCorrectSound(){ try{ window.playToneSequenceInternal([{freq:880,dur:120,type:'sine',gain:0.06,delayAfter:20},{freq:1100,dur:120,type:'sine',gain:0.06}]); }catch(e){} }
+function playWrongSound(){ try{ window.playToneSequenceInternal([{freq:220,dur:220,type:'sawtooth',gain:0.08}]); }catch(e){} }
+function playFinalSound(){ try{ window.playToneSequenceInternal([{freq:660,dur:160,type:'sine',gain:0.06,delayAfter:40},{freq:880,dur:160,type:'sine',gain:0.06,delayAfter:40},{freq:1040,dur:260,type:'sine',gain:0.07}]); }catch(e){} }
+
+/* ensure AudioContext functions exist at top-level too */
+window.ensureAudioContext = ensureAudioContext;
+window.resumeAudioIfNeeded = resumeAudioIfNeeded;
+
+/* Safety: if user interacts (click anywhere), resume audio if activated flag */
+document.addEventListener('click', ()=> {
+  if(audioActivated) resumeAudioIfNeeded();
+});
+</script>
 </body>
 </html>
+
+
 
