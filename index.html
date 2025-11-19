@@ -1,1 +1,387 @@
 
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Juego: Michael Porter — Quiz Interactivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3f6ff; --card:#ffffff; --primary:#0f2340; --accent:#2b6ef6; --muted:#6b7280;
+    --success:#dff3e6; --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#eef3ff 0%, #ffffff 100%);color:#071129;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px}
+  .wrap{width:100%;max-width:980px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  h1{margin:0;color:var(--primary);font-size:20px}
+  .subtitle{color:var(--muted);font-size:13px}
+  .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(12,34,64,0.06);margin-bottom:16px}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .col{flex:1;min-width:240px}
+  .btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+  .btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(17,43,87,0.06)}
+  .muted{color:var(--muted);font-size:14px}
+  .small{font-size:13px}
+  .question{font-weight:700;margin-bottom:10px;font-size:18px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .option{background:#f6f9ff;padding:12px;border-radius:10px;cursor:pointer;border:1px solid transparent;user-select:none}
+  .option:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(43,110,246,0.06)}
+  .option.correct{border-color:#34a853;background:#e7f8ea}
+  .option.wrong{border-color:var(--danger);background:#ffecec}
+  .meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .timerBox{background:#fff;border-radius:10px;padding:8px 12px;border:1px solid rgba(10,30,80,0.04);display:flex;align-items:center;gap:10px;box-shadow:0 6px 18px rgba(17,43,87,0.03)}
+  .timerVal{font-weight:800;color:var(--accent);font-size:18px}
+  .progress{height:8px;background:#eef2ff;border-radius:8px;overflow:hidden;margin-top:10px}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent), #6dd3ff);width:0%}
+  .topActions{display:flex;gap:8px;align-items:center}
+  .center{display:flex;justify-content:center}
+  .footerNote{text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
+  @media (max-width:680px){
+    header{align-items:flex-start}
+    .meta{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Michael Porter — Quiz Interactivo</h1>
+      <div class="subtitle">Aprende y evalúa conocimientos sobre estrategia, las 5 fuerzas y la cadena de valor</div>
+    </div>
+
+    <div class="meta">
+      <div class="timerBox card" aria-live="polite" title="Tiempo transcurrido">
+        <div style="font-size:12px;color:var(--muted)">Cronómetro</div>
+        <div id="bigTimer" class="timerVal">0:00</div>
+      </div>
+      <div class="topActions">
+        <button id="restartBtn" class="btn ghost" onclick="resetGame()">Reiniciar</button>
+        <button id="startBtn" class="btn" onclick="startGame()">Comenzar</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- INTRO / INFORMACIÓN -->
+  <section id="introCard" class="card">
+    <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <h2 style="margin:0 0 8px 0">Introducción a Michael E. Porter</h2>
+        <p class="muted small" style="margin:0">
+          Michael E. Porter (n. 1947) es profesor en la Harvard Business School, reconocido por su trabajo sobre estrategia competitiva.
+          Sus investigaciones han explicado cómo las empresas crean y sostienen ventajas competitivas mediante análisis estructurados del entorno competitivo.
+        </p>
+      </div>
+      <div style="flex:1;min-width:260px">
+        <h3 style="margin:0 0 8px 0">Conceptos clave</h3>
+        <ul class="muted small" style="margin:0;padding-left:18px">
+          <li><b>5 Fuerzas de Porter:</b> Rivalidad, Poder de proveedores, Poder de compradores, Amenaza de nuevos entrantes, Amenaza de sustitutos.</li>
+          <li><b>Cadena de valor:</b> Análisis de actividades primarias y de apoyo para identificar fuentes de ventaja.</li>
+          <li><b>Estrategias genéricas:</b> Liderazgo en costes, Diferenciación y Enfoque (foco).</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr style="margin:14px 0; border:none; height:1px; background:#eef3ff">
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div class="muted small" style="max-width:68%">
+        Este quiz te presenta preguntas de opción múltiple. Responde lo más rápido posible para obtener bonus por rapidez. Puedes usar hasta 3 ayudas durante la sesión.
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn ghost" onclick="showBio()">Biografía</button>
+        <button class="btn ghost" onclick="showWorks()">Obras</button>
+        <button class="btn ghost" onclick="showPubs()">Publicaciones</button>
+      </div>
+    </div>
+
+    <div id="moreInfo" style="margin-top:12px" class="muted small">
+      <!-- contenido dinámico -->
+      <b>Tip:</b> Presiona "Comenzar" cuando estés listo. El cronómetro iniciará y se mostrará el progreso.
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quizSection" class="card" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:13px;color:var(--muted)">Pregunta <span id="qIndex">1</span> de <span id="qTotal">1</span></div>
+        <div id="questionBox" style="margin-top:8px"></div>
+      </div>
+
+      <div style="text-align:right;min-width:140px">
+        <div class="muted small">Puntaje</div>
+        <div id="scorePanel" style="font-weight:800;font-size:20px">0.00</div>
+        <div style="height:8px"></div>
+        <div class="muted small">Ayudas: <span id="helpRem">3</span></div>
+        <div style="margin-top:8px">
+          <button id="helpBtn" class="btn ghost" onclick="useHelp()">Usar ayuda</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true" style="margin-top:12px">
+      <i id="progressBar"></i>
+    </div>
+
+  </section>
+
+  <!-- FINAL -->
+  <section id="finalCard" class="card" style="display:none">
+    <h2 style="margin:0 0 8px 0">Resultados</h2>
+    <div class="muted small">
+      <p id="finalText"></p>
+    </div>
+    <div class="center" style="margin-top:12px">
+      <button class="btn" onclick="resetGame()">Volver a jugar</button>
+    </div>
+  </section>
+
+  <div class="footerNote">Diseñado para funcionar en PC y dispositivos móviles. ¡Buena suerte!</div>
+</div>
+
+<script>
+/* ===========================
+   Contenido mejorado dinámico
+   =========================== */
+const BIO = `<strong>Michael E. Porter</strong> (n. 1947) es profesor en Harvard Business School. Su trabajo combina teoría económica y análisis estratégico aplicable a empresas y regiones. Porter ha influido en políticas públicas y prácticas empresariales a nivel global.`;
+
+const WORKS = `<ul style="margin:6px 0;padding-left:18px"><li><b>5 Fuerzas</b> — marco para analizar la estructura competitiva.</li><li><b>Cadena de Valor</b> — identifica actividades que crean valor.</li><li><b>Estrategias Genéricas</b> — opciones para generar ventaja competitiva.</li></ul>`;
+
+const PUBS = `<ul style="margin:6px 0;padding-left:18px"><li>"Competitive Strategy" (1980)</li><li>"Competitive Advantage" (1985)</li><li>"The Competitive Advantage of Nations" (1990)</li></ul>`;
+
+/* ===========================
+   Preguntas (más completas)
+   =========================== */
+const QUESTIONS = [
+  { q: '¿Cuántas fuerzas incluye el modelo de Porter?', opts:['3','5','7'], correct:1 },
+  { q: '¿Cuál NO es una estrategia genérica según Porter?', opts:['Diferenciación','Liderazgo en costos','Innovación disruptiva'], correct:2 },
+  { q: '¿Qué analiza la cadena de valor?', opts:['Actividades que añaden valor','Clima laboral','Estructura fiscal'], correct:0 },
+  { q: '¿En qué año se publicó "Competitive Strategy"?', opts:['1975','1980','1992'], correct:1 },
+  { q: '¿Cuál es una actividad primaria en la cadena de valor?', opts:['Operaciones','Gestión financiera','Relaciones públicas'], correct:0 },
+  { q: '¿Qué fuerza mide la amenaza de nuevos competidores?', opts:['Entrada de nuevos entrantes','Poder de proveedores','Sustitutos'], correct:0 },
+  { q: '¿Qué son los "sustitutos" en el modelo de Porter?', opts:['Productos/servicios alternativos','Socios comerciales','Regulaciones'], correct:0 },
+  { q: '¿Qué busca la estrategia de liderazgo en costos?', opts:['Reducir costos para competir en precios','Crear productos exclusivos','Ignorar la competencia'], correct:0 },
+  { q: '¿Qué herramienta ayuda a identificar ventajas internas?', opts:['Cadena de valor','ANOVA','Mapa de calor'], correct:0 },
+  { q: '¿Qué estudia el "Diamante de Porter"?', opts:['Competitividad de las naciones','Estructura organizacional','Riesgo financiero'], correct:0 },
+  { q: '¿Qué significa "foco" en las estrategias genéricas?', opts:['Atender un segmento o nicho','Reducir plantilla','Diversificación'], correct:0 },
+  { q: '¿Qué puede aumentar el poder de los compradores?', opts:['Muchas alternativas de proveedores','Alta concentración de compradores','Barreras de entrada altas'], correct:1 }
+];
+
+/* ===========================
+   Variables del juego
+   =========================== */
+let currentQuestion = 0;
+let startTime = null;
+let elapsedInterval = null;
+let totalScore = 0;
+let puzzleScore = 0; // ya no se usa, pero lo dejamos en 0 por compatibilidad
+let helpRemaining = 3;
+let questionStart = null;
+
+/* DOM */
+const bigTimer = document.getElementById('bigTimer');
+const startBtn = document.getElementById('startBtn');
+const quizSection = document.getElementById('quizSection');
+const questionBox = document.getElementById('questionBox');
+const qIndex = document.getElementById('qIndex');
+const qTotal = document.getElementById('qTotal');
+const scorePanel = document.getElementById('scorePanel');
+const helpRem = document.getElementById('helpRem');
+const helpBtn = document.getElementById('helpBtn');
+const progressBar = document.getElementById('progressBar');
+const finalCard = document.getElementById('finalCard');
+const finalText = document.getElementById('finalText');
+const moreInfo = document.getElementById('moreInfo');
+const introCard = document.getElementById('introCard');
+const restartBtn = document.getElementById('restartBtn');
+
+/* Inicializa textos info */
+function showBio(){ moreInfo.innerHTML = BIO; }
+function showWorks(){ moreInfo.innerHTML = WORKS; }
+function showPubs(){ moreInfo.innerHTML = PUBS; }
+
+/* ===========================
+   Utilidades de tiempo
+   =========================== */
+function formatTimeSec(s){
+  const m = Math.floor(s/60);
+  const sec = s % 60;
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+function startTimer(){
+  if(elapsedInterval) clearInterval(elapsedInterval);
+  startTime = Date.now();
+  updateBigTimer();
+  elapsedInterval = setInterval(updateBigTimer, 500);
+}
+function updateBigTimer(){
+  const sec = Math.floor((Date.now() - startTime)/1000);
+  bigTimer.innerText = formatTimeSec(sec);
+}
+
+/* ===========================
+   Control del juego
+   =========================== */
+function startGame(){
+  // preparar
+  startBtn.disabled = true;
+  startBtn.innerText = 'En curso...';
+  introCard.style.display = 'none';
+  quizSection.style.display = 'block';
+  finalCard.style.display = 'none';
+
+  currentQuestion = 0;
+  totalScore = 0;
+  helpRemaining = 3;
+  helpRem.innerText = helpRemaining;
+  scorePanel.innerText = totalScore.toFixed(2);
+
+  qTotal.innerText = QUESTIONS.length;
+  startTimer();
+  showQuestion();
+}
+
+function resetGame(){
+  // reinicia todo al estado inicial
+  if(elapsedInterval) clearInterval(elapsedInterval);
+  startBtn.disabled = false;
+  startBtn.innerText = 'Comenzar';
+  introCard.style.display = 'block';
+  quizSection.style.display = 'none';
+  finalCard.style.display = 'none';
+  bigTimer.innerText = '0:00';
+  moreInfo.innerHTML = `<b>Tip:</b> Presiona "Comenzar" cuando estés listo. El cronómetro iniciará y se mostrará el progreso.`;
+}
+
+/* Mostrar pregunta actual */
+function showQuestion(){
+  const q = QUESTIONS[currentQuestion];
+  questionStart = Date.now();
+
+  qIndex.innerText = currentQuestion + 1;
+  questionBox.innerHTML = `<div class="question">${q.q}</div>`;
+
+  const opts = document.createElement('div');
+  opts.className = 'options';
+
+  q.opts.forEach((o,i)=>{
+    const btn = document.createElement('div');
+    btn.className = 'option';
+    btn.tabIndex = 0;
+    btn.innerText = o;
+
+    // event handlers: click + keyboard enter to allow accesibility
+    btn.addEventListener('click', ()=> selectOption(i, btn));
+    btn.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter' || ev.key === ' ') selectOption(i, btn);
+    });
+
+    opts.appendChild(btn);
+  });
+
+  questionBox.appendChild(opts);
+  updateProgress();
+}
+
+/* Selección de opción */
+function selectOption(i, btnEl){
+  const q = QUESTIONS[currentQuestion];
+  const tSec = (Date.now() - questionStart)/1000;
+  const correct = (i === q.correct);
+
+  // visual feedback inmediato
+  const allOpts = Array.from(questionBox.querySelectorAll('.option'));
+  allOpts.forEach((el, idx)=>{
+    el.classList.remove('correct','wrong');
+    if(idx === q.correct) el.classList.add('correct');
+    if(idx === i && !correct) el.classList.add('wrong');
+    el.style.pointerEvents = 'none';
+  });
+
+  // cálculo de puntaje: 1 punto base + bonus por rapidez (hasta 0.8)
+  let bonus = 0;
+  if(correct){
+    bonus = Math.max(0, (30 - Math.min(30, tSec)) / 30) * 0.8;
+    // reducir si se usó ayuda en esta pregunta
+    const usedHelp = questionBox.dataset.usedhelp === 'true';
+    if(usedHelp) bonus = bonus / 2;
+    totalScore += (1 + bonus);
+  } else {
+    // penalización ligera si se equivocó y usó ayuda
+    if(questionBox.dataset.usedhelp === 'true') totalScore = Math.max(0, totalScore - 0.2);
+  }
+
+  // limpiar flag usedhelp para próxima pregunta
+  questionBox.dataset.usedhelp = 'false';
+  scorePanel.innerText = totalScore.toFixed(2);
+
+  // avanzar después de un corto delay para mostrar feedback
+  setTimeout(()=>{
+    currentQuestion++;
+    if(currentQuestion >= QUESTIONS.length){
+      finishGame();
+    } else {
+      showQuestion();
+    }
+  }, 700);
+}
+
+/* Uso de ayuda */
+function useHelp(){
+  if(helpRemaining > 0){
+    helpRemaining--;
+    helpRem.innerText = helpRemaining;
+    // deshabilitar una opción incorrecta visible
+    const q = QUESTIONS[currentQuestion];
+    const opts = Array.from(document.querySelectorAll('#questionBox .option'));
+    // encuentra un índice que NO sea el correcto y que esté habilitado
+    const wrongIdx = opts.findIndex((el,idx)=> idx !== q.correct && !el.classList.contains('wrong'));
+    if(wrongIdx >= 0){
+      opts[wrongIdx].style.opacity = 0.45;
+      // marcamos que se usó ayuda para reducir bonus en esta pregunta
+      questionBox.dataset.usedhelp = 'true';
+    }
+  } else {
+    alert('No te quedan ayudas.');
+  }
+}
+
+/* Progreso visual */
+function updateProgress(){
+  const pct = ((currentQuestion) / QUESTIONS.length) * 100;
+  progressBar.style.width = pct + '%';
+}
+
+/* Finalizar juego */
+function finishGame(){
+  if(elapsedInterval) clearInterval(elapsedInterval);
+  quizSection.style.display = 'none';
+  finalCard.style.display = 'block';
+
+  const totalTime = Math.floor((Date.now() - startTime)/1000);
+  finalText.innerHTML = `
+    <strong>Puntaje total:</strong> ${totalScore.toFixed(2)} puntos.<br>
+    <strong>Tiempo total:</strong> ${formatTimeSec(totalTime)}.<br>
+    <strong>Preguntas contestadas:</strong> ${QUESTIONS.length}.
+  `;
+  // habilita restart
+  startBtn.disabled = false;
+  startBtn.innerText = 'Comenzar';
+}
+
+/* Inicialización visual al cargar */
+(function init(){
+  qTotal.innerText = QUESTIONS.length;
+  helpRem.innerText = helpRemaining;
+  scorePanel.innerText = totalScore.toFixed(2);
+  updateProgress();
+})();
+</script>
+</body>
+</html>
