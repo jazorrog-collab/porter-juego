@@ -257,6 +257,62 @@ function loadPuzzle(){
 }
 
 function dragStart(ev){ ev.dataTransfer.setData('text/plain', ev.target.id); }
+
+// --- Touch support for mobile (solo móviles) ----
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  let touchItem = null;
+
+  document.addEventListener('touchstart', function(e){
+    const t = e.target.closest('.cardItem');
+    if(t){ touchItem = t; t.style.opacity = 0.6; }
+  });
+
+  document.addEventListener('touchmove', function(e){
+    if(!touchItem) return;
+    const touch = e.touches[0];
+    touchItem.style.position='fixed';
+    touchItem.style.left = (touch.clientX - 40)+'px';
+    touchItem.style.top = (touch.clientY - 20)+'px';
+    touchItem.style.zIndex = 9999;
+  });
+
+  document.addEventListener('touchend', function(e){
+    if(!touchItem) return;
+    const touch = e.changedTouches[0];
+    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+    const drop = elem && elem.closest ? elem.closest('.dropzone') : null;
+
+    touchItem.style.opacity = 1;
+    touchItem.style.position='static';
+    touchItem.style.zIndex = 1;
+
+    if(drop){ drop.appendChild(touchItem); touchItem.classList.add('placed'); }
+    touchItem = null;
+  });
+}
+document.addEventListener('touchstart', function(e){
+  const t = e.target.closest('.cardItem');
+  if(t){ touchItem = t; t.style.opacity = 0.6; }
+});
+document.addEventListener('touchmove', function(e){
+  if(!touchItem) return;
+  const touch = e.touches[0];
+  touchItem.style.position='fixed';
+  touchItem.style.left = (touch.clientX - 40)+'px';
+  touchItem.style.top = (touch.clientY - 20)+'px';
+  touchItem.style.zIndex = 9999;
+});
+document.addEventListener('touchend', function(e){
+  if(!touchItem) return;
+  const touch = e.changedTouches[0];
+  const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+  const drop = elem.closest('.dropzone');
+  touchItem.style.opacity = 1;
+  touchItem.style.position='static';
+  touchItem.style.zIndex = 1;
+  if(drop){ drop.appendChild(touchItem); touchItem.classList.add('placed'); }
+  touchItem = null;
+});(ev){ ev.dataTransfer.setData('text/plain', ev.target.id); }
 function dragOver(ev){ ev.preventDefault(); }
 function dropItem(ev){ ev.preventDefault(); const id = ev.dataTransfer.getData('text/plain'); const node = document.getElementById(id); if(node && ev.currentTarget.classList.contains('dropzone')){
   // append copy to drop zone (and disable original)
