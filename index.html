@@ -1,447 +1,330 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quiz Porter — App Game (con biografía)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortesía: ¿Abres o cierras puertas?</title>
+
 <style>
-  :root{
-    --bg1:#022c59; --bg2:#0466c8; --card:#ffffff; --accent:#00b4d8;
-    --muted:#90a4c0; --good:#2dd4bf; --bad:#ff6b6b;
-  }
-  *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
-  html,body{height:100%}
-  body{margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#032a4a;display:flex;align-items:center;justify-content:center;padding:18px}
-  .app{
-    width:100%;max-width:820px;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
-    border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);backdrop-filter:blur(6px);
-  }
+body {
+  font-family: Arial, sans-serif;
+  background: #eef2f5;
+  margin: 0;
+  padding: 10px;
+}
 
-  /* Intro animated screen */
-  .intro{
-    display:flex;gap:18px;align-items:center;
-    justify-content:space-between;flex-wrap:wrap;
-  }
-  .intro-left{flex:1;min-width:260px;color:white}
-  .title{font-size:22px;margin:0 0 8px 0;font-weight:800}
-  .lead{color:rgba(255,255,255,0.92);margin:0 0 12px 0}
-  .cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.container {
+  max-width: 420px;
+  margin: auto;
+  background: white;
+  padding: 18px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 12px rgba(0,0,0,0.1);
+}
 
-  .soundCard{
-    background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:220px;
-  }
-  .bigIcon{
-    width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#ffffff33,#ffffff11);display:flex;align-items:center;justify-content:center;color:white;font-size:36px;
-    box-shadow:0 8px 30px rgba(0,0,0,0.25);
-  }
-  .btn{
-    background:white;color:var(--bg2);border:none;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer;
-    box-shadow:0 6px 18px rgba(0,0,0,0.18);
-  }
-  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:white}
+h1 {
+  font-size: 18px;
+  text-align: center;
+}
 
-  /* Game Screen */
-  .game{display:none;flex-direction:column;gap:14px}
-  .topBar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-  .timer{background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:white;font-weight:700;min-width:110px;text-align:center}
-  .score{background:rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:white}
-  .questionCard{background:var(--card);border-radius:14px;padding:18px;color:#062030;box-shadow:0 8px 25px rgba(3,40,80,0.08)}
-  .qtext{font-weight:700;font-size:18px;margin:0 0 10px 0}
-  .options{display:flex;flex-direction:column;gap:10px}
-  .opt{background:#f4fbff;border-radius:10px;padding:12px;border:1px solid #e6f0fb;cursor:pointer;text-align:left;transition:transform .12s, box-shadow .12s}
-  .opt:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(3,40,80,0.06)}
-  .opt.correct{background:linear-gradient(90deg,#def7ee,#d1fae5);border-color:#9be7c2;outline:3px solid rgba(39,199,152,0.08)}
-  .opt.wrong{background:linear-gradient(90deg,#ffecec,#ffdede);border-color:#ff9b9b}
+.info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
 
-  .hint{margin-top:10px;padding:10px;background:#fff7e6;border-left:4px solid #ffd27a;border-radius:8px;color:#5b3f00}
+.progress {
+  height: 6px;
+  background: #ddd;
+  border-radius: 5px;
+  margin: 10px 0;
+}
 
-  .progressWrap{height:10px;background:rgba(0,0,0,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
-  .progressBar{height:100%;width:0%;background:linear-gradient(90deg,#00b4d8,#0077b6)}
+.progress-bar {
+  height: 6px;
+  background: #3498db;
+  width: 0%;
+  border-radius: 5px;
+}
 
-  .feedback{
-    margin-top:8px;font-weight:700;font-size:16px;
-  }
+button {
+  width: 100%;
+  margin: 6px 0;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #3498db;
+  color: white;
+  font-size: 14px;
+}
 
-  /* footer controls */
-  .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px;flex-wrap:wrap}
-  .helpBtn{background:#ffd166;color:#0b2b3a;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
-
-  /* final screen */
-  .final{display:none;text-align:center;padding:18px}
-  .final h2{margin:6px 0 12px 0}
-
-  /* modal biografia */
-  .bioPanel {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(2,20,40,0.6);
-    z-index: 1200;
-  }
-  .bioBox{
-    width: 92%;
-    max-width: 640px;
-    background: #ffffff;
-    color: #072032;
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 20px 50px rgba(2,20,40,0.6);
-    text-align: left;
-    line-height: 1.5;
-  }
-  .bioBox h3{margin-top:0;color:var(--bg2)}
-  .bioClose{display:inline-block;margin-top:14px;padding:10px 14px;border-radius:10px;background:var(--bg2);color:white;border:none;cursor:pointer}
-
-  /* responsive */
-  @media (max-width:680px){
-    .bigIcon{width:78px;height:78px;font-size:30px}
-    .title{font-size:20px}
-  }
+.result {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
 </style>
 </head>
+
 <body>
-  <div class="app" role="application" aria-label="Quiz de Michael Porter - App game">
-    <!-- Intro (activación de audio) -->
-    <div id="intro" class="intro">
-      <div class="intro-left">
-        <h1 class="title">Quiz interactivo: Michael Porter</h1>
-        <p class="lead">Ponte a prueba con preguntas de estrategia. Responde rápido para ganar más puntos — estilo Kahoot. Usa ayudas con moderación.</p>
 
-        <!-- NEW: small area with bio teaser + button (integrated, non-intrusive) -->
-        <div style="background:rgba(255,255,255,0.04);padding:10px;border-radius:10px;margin-bottom:12px">
-          <strong>Biografía</strong>
-          <p style="margin:6px 0 8px 0;color:rgba(255,255,255,0.9);font-size:13px">
-            Michael E. Porter (n. 1947) es profesor en Harvard, creador de las 5 Fuerzas, la Cadena de Valor y el Diamante de competitividad.
-          </p>
-          <button class="btn-ghost" onclick="openBio()">Leer biografía</button>
-        </div>
+<div class="container">
+  <h1>¿Abres o cierras puertas?</h1>
 
-        <div class="cta">
-          <button id="startNoSound" class="btn-ghost" onclick="showGameNoSound()">Entrar sin sonido</button>
-        </div>
-      </div>
-
-      <div class="soundCard" aria-hidden="false">
-        <div class="bigIcon">🔊</div>
-        <div style="color:white;font-weight:700">Activa sonido</div>
-        <div style="color:rgba(255,255,255,0.9);font-size:14px;max-width:240px">
-          Presiona para habilitar efectos sonoros y vibración. Recomendado para mejor experiencia.
-        </div>
-        <button id="activateSound" class="btn" onclick="activateAudio()">Activar sonido</button>
-      </div>
-    </div>
-
-    <!-- Game -->
-    <div id="game" class="game hidden">
-      <div class="topBar">
-        <div class="timer" id="timer">10</div>
-        <div class="score" id="score">Puntaje: 0</div>
-      </div>
-
-      <div class="questionCard">
-        <div class="qtext" id="qtext">Pregunta...</div>
-        <div class="options" id="options"></div>
-
-        <div class="progressWrap" aria-hidden="true">
-          <div class="progressBar" id="progressBar"></div>
-        </div>
-
-        <div id="hintBox" class="hint" style="display:none"></div>
-
-        <div class="feedback" id="feedback"></div>
-      </div>
-
-      <div class="controls">
-        <button id="helpBtn" class="helpBtn" onclick="useHelp()">Ayuda (-50) (3)</button>
-        <button class="btn-ghost" onclick="endEarly()">Finalizar</button>
-      </div>
-    </div>
-
-    <!-- Final -->
-    <div id="final" class="final hidden">
-      <h2>¡Juego terminado!</h2>
-      <div id="finalScore" style="font-weight:800;font-size:20px"></div>
-      <div style="margin-top:8px;color:var(--muted)" id="finalTime"></div>
-      <div style="margin-top:12px">
-        <button class="btn" onclick="restart()">Jugar otra vez</button>
-      </div>
-    </div>
-
+  <div class="info">
+    <span id="score">Puntaje: 0</span>
+    <span id="timer">Tiempo: 12</span>
   </div>
 
-  <!-- BIO PANEL -->
-  <div id="bioPanel" class="bioPanel" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="bioBox">
-      <h3>Michael E. Porter — Biografía breve</h3>
-      <p><strong>Michael Eugene Porter</strong> (nacido en 1947) es uno de los principales expertos mundiales en estrategia empresarial. Profesor de la Harvard Business School, Porter desarrolló marcos teóricos que cambiaron la forma en que se analiza la competencia y la ventaja competitiva. Sus teorías combinan economía industrial, análisis estructural y un enfoque práctico para ayudar a empresas y gobiernos a diseñar políticas y estrategias efectivas.</p>
-      <p>Entre sus aportes destacan las <strong>Cinco Fuerzas de Porter</strong>, la <strong>Cadena de Valor</strong>, el <strong>Diamante de la Competitividad</strong> y las <strong>Estrategias Genéricas</strong> (liderazgo en costos, diferenciación y enfoque). Ha asesorado a organizaciones internacionales, gobiernos y empresas, y sus publicaciones en Harvard Business Review y libros como <em>Competitive Strategy</em> y <em>Competitive Advantage</em> son lecturas fundamentales en escuelas de negocio.</p>
-      <p>Además de su trabajo en estrategia, Porter ha abordado temas de competitividad nacional, clústeres económicos y valor compartido, conectando resultados académicos con acciones prácticas en la economía y la sociedad.</p>
-      <button class="bioClose" onclick="closeBio()">Cerrar</button>
-    </div>
+  <div class="progress">
+    <div class="progress-bar" id="progress"></div>
   </div>
+
+  <p id="question"></p>
+  <div id="options"></div>
+  <p class="result" id="result"></p>
+</div>
 
 <script>
-/* ==========================
-   WebAudio - síntesis (no depende de archivos)
-   ========================== */
-let audioCtx = null;
-function ensureAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const questions = [
+  {
+    type: "mc",
+    q: "Un cliente molesto te reclama. ¿Qué haces?",
+    options: [
+      "Ignorarlo",
+      "Responder igual",
+      "Escuchar y responder con respeto",
+      "Culpar a otro"
+    ],
+    correct: 2,
+    explanation: "La cortesía en momentos difíciles genera confianza."
+  },
+  {
+    type: "vf",
+    q: "Ser cortés significa evitar conflictos siempre.",
+    options: ["Verdadero", "Falso"],
+    correct: 1,
+    explanation: "Puedes enfrentar conflictos con respeto."
+  },
+  {
+    type: "mc",
+    q: "Tu jefe se equivoca en público.",
+    options: [
+      "Corregirlo en público",
+      "Ignorar",
+      "Hablar después en privado",
+      "Criticarlo con otros"
+    ],
+    correct: 2,
+    explanation: "La cortesía protege relaciones."
+  },
+  {
+    type: "scenario",
+    q: "En una reunión alguien interrumpe constantemente.",
+    options: [
+      "Interrumpirlo también",
+      "Ignorar",
+      "Pedir la palabra con respeto",
+      "Molestarte en silencio"
+    ],
+    correct: 2,
+    explanation: "La cortesía mantiene el orden profesional."
+  },
+  {
+    type: "mc",
+    q: "Un cliente hace muchas preguntas.",
+    options: [
+      "Responder con molestia",
+      "Ignorarlo",
+      "Responder con paciencia",
+      "Evadir preguntas"
+    ],
+    correct: 2,
+    explanation: "La paciencia es parte de la cortesía."
+  },
+  {
+    type: "vf",
+    q: "Pedir disculpas te hace ver débil.",
+    options: ["Verdadero", "Falso"],
+    correct: 1,
+    explanation: "Refuerza tu profesionalismo."
+  },
+  {
+    type: "scenario",
+    q: "Un compañero falla en su tarea.",
+    options: [
+      "Exponerlo",
+      "Hablar con él en privado",
+      "Ignorarlo",
+      "Hacer su trabajo sin decir nada"
+    ],
+    correct: 1,
+    explanation: "La cortesía evita conflictos."
+  },
+  {
+    type: "mc",
+    q: "No entiendes una instrucción.",
+    options: [
+      "Improvisar",
+      "Preguntar con respeto",
+      "Ignorar",
+      "Culpar después"
+    ],
+    correct: 1,
+    explanation: "La cortesía mejora resultados."
+  },
+  {
+    type: "vf",
+    q: "La cortesía es solo apariencia.",
+    options: ["Verdadero", "Falso"],
+    correct: 1,
+    explanation: "Es una herramienta profesional."
+  },
+  {
+    type: "scenario",
+    q: "Debes dar una mala noticia.",
+    options: [
+      "Ser frío",
+      "Evitar decirlo",
+      "Decirlo con empatía",
+      "Culpar a otros"
+    ],
+    correct: 2,
+    explanation: "La empatía es clave."
+  },
+  {
+    type: "mc",
+    q: "Llegas tarde a una reunión.",
+    options: [
+      "No decir nada",
+      "Justificarte agresivamente",
+      "Disculparte",
+      "Ignorar"
+    ],
+    correct: 2,
+    explanation: "La cortesía refleja respeto."
+  },
+  {
+    type: "scenario",
+    q: "Alguien critica tu trabajo injustamente.",
+    options: [
+      "Responder agresivo",
+      "Ignorar",
+      "Responder con calma",
+      "Criticar de vuelta"
+    ],
+    correct: 2,
+    explanation: "El autocontrol es clave."
   }
-}
-function resumeAudioIfNeeded() {
-  if (!audioCtx) ensureAudioContext();
-  if (audioCtx.state === 'suspended') return audioCtx.resume();
-  return Promise.resolve();
-}
-function playSequence(seq){
-  // seq = [{freq,dur,type,gain,delayAfter}]
-  resumeAudioIfNeeded().then(()=> {
-    const now = audioCtx.currentTime;
-    seq.reduce((acc, s) => {
-      const start = now + acc;
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = s.type || 'sine';
-      o.frequency.value = s.freq;
-      g.gain.value = s.gain || 0.06;
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(start);
-      o.stop(start + s.dur/1000);
-      return acc + (s.dur + (s.delayAfter || 0))/1000;
-    }, 0);
-  }).catch(()=>{ /* ignore */ });
-}
-function playCorrectSound(){ playSequence([{freq:880,dur:120,type:'sine',gain:0.06,delayAfter:20},{freq:1100,dur:120,type:'sine',gain:0.06}]); }
-function playWrongSound(){ playSequence([{freq:220,dur:220,type:'sawtooth',gain:0.08}]); }
-function playFinalSound(){ playSequence([{freq:660,dur:140,type:'sine',gain:0.06,delayAfter:40},{freq:880,dur:160,type:'sine',gain:0.06,delayAfter:40},{freq:1040,dur:220,type:'sine',gain:0.07}]); }
-
-/* ==========================
-   Preguntas (20) y shuffle
-   ========================== */
-let questions = [
-    { q:"¿Qué modelo creó Porter para analizar industrias?", options:["5 fuerzas","Estrategia azul","3 pasos"], answer:0, hint:"Analiza la competencia" },
-    { q:"¿Qué es la cadena de valor?", options:["Proveedores","Actividades internas","Ingresos"], answer:1, hint:"Describe cómo creas valor" },
-    { q:"¿Qué busca la estrategia?", options:["Imitar","Ser diferente","Gastar menos"], answer:1, hint:"Implica diferenciación" },
-    { q:"Una fuerza es:", options:["Marketing","Rivalidad","Clima"], answer:1, hint:"Competencia entre empresas" },
-    { q:"¿Qué mide el diamante de Porter?", options:["Ventas","Competitividad","Publicidad"], answer:1, hint:"Nivel país" },
-    { q:"¿Qué son sustitutos?", options:["Impuestos","Alternativas","Gerentes"], answer:1, hint:"Ej: taxi vs Uber" },
-    { q:"¿Qué es valor compartido?", options:["Caridad","Social+económico","Solo dinero"], answer:1, hint:"Beneficia empresa y sociedad" },
-    { q:"¿Qué define ventaja competitiva?", options:["Ahorrar","Publicidad","Diferencia difícil de copiar"], answer:2, hint:"Puede ser tecnología" },
-    { q:"¿Qué es un cluster?", options:["Apps","Empresas agrupadas","Cloud"], answer:1, hint:"En un territorio" },
-    { q:"¿Qué amenaza evalúa Porter?", options:["Nuevos entrantes","Precio","Gerencia"], answer:0, hint:"Nueva competencia" },
-    { q:"Ejemplo de cadena de valor:", options:["Logística","Inversores","Contabilidad"], answer:0, hint:"Procesos internos" },
-    { q:"La rivalidad aumenta cuando:", options:["Caros","Muchos competidores","Pocos"], answer:1, hint:"Más empresas → más rivalidad" },
-    { q:"Un proveedor fuerte puede:", options:["Contratar","Subir costos","Vender más"], answer:1, hint:"Aumenta precios" },
-    { q:"Un diferenciador común es:", options:["Marca","Impuestos","Salarios"], answer:0, hint:"Percepción del cliente" },
-    { q:"Una estrategia clara evita:", options:["Innovar","Competir en todo","Planear"], answer:1, hint:"No puedes ser todo a la vez" },
-    { q:"Una barrera de entrada es:", options:["Publicidad","Patentes","Ventas"], answer:1, hint:"Protege industria" },
-    { q:"Porter nació en:", options:["Brasil","EEUU","México"], answer:1, hint:"En Norteamérica" },
-    { q:"Las 5 fuerzas predicen:", options:["Salarios","Rentabilidad","Bonos"], answer:1, hint:"Ganancias del sector" },
-    { q:"Ejemplo de sustituto:", options:["Hélice","Cable","Videollamadas vs viajes"], answer:2, hint:"Reducen la demanda del original" },
-    { q:"¿Qué es estrategia?", options:["Copiar","Elegir qué no hacer","Improvisar"], answer:1, hint:"Límite claro" }
 ];
-questions = questions.sort(()=> Math.random() - 0.5);
 
-/* ========= estado ========= */
-let currentIndex = 0;
+let current = 0;
 let score = 0;
-let helpLeft = 3;
-let questionMaxTime = 12;
-let timeLeft = questionMaxTime;
-let timerInterval = null;
-let questionStartTime = 0;
-let audioActivated = false;
+let timeLeft = 12;
+let timer;
 
-/* UI refs */
-const introEl = document.getElementById('intro');
-const gameEl = document.getElementById('game');
-const finalEl = document.getElementById('final');
-const qtext = document.getElementById('qtext');
-const optionsEl = document.getElementById('options');
-const timerEl = document.getElementById('timer');
-const scoreEl = document.getElementById('score');
-const progressBar = document.getElementById('progressBar');
-const hintBox = document.getElementById('hintBox');
-const feedbackEl = document.getElementById('feedback');
-const helpBtn = document.getElementById('helpBtn');
-const bioPanel = document.getElementById('bioPanel');
+function startTimer() {
+  timeLeft = 12;
+  document.getElementById("timer").innerText = "Tiempo: " + timeLeft;
 
-/* ========== audio activation ========== */
-function activateAudio(){
-  ensureAudioContext();
-  // resume on user gesture
-  audioCtx.resume().then(()=> {
-    audioActivated = true;
-    // small confirmation beep and vibrate
-    playSequence([{freq:880,dur:100,gain:0.05}]);
-    try{ if(navigator.vibrate) navigator.vibrate(40); } catch(e){}
-    startGame();
-  }).catch(()=>{
-    audioActivated = true;
-    startGame();
-  });
-}
-function showGameNoSound(){
-  audioActivated = false;
-  startGame();
-}
-
-/* ========= utilidad vibrate ========= */
-function navigatorVibratePattern(p){
-  try{ if(navigator.vibrate) navigator.vibrate(p); } catch(e){}
-}
-
-/* ========= juego: inicio/cargar/pregunta/responder ========= */
-function startGame(){
-  introEl.style.display = 'none';
-  finalEl.classList.add('hidden');
-  gameEl.style.display = 'flex';
-  currentIndex = 0; score = 0; helpLeft = 3;
-  scoreEl.innerText = `Puntaje: ${score}`;
-  helpBtn.innerText = `Ayuda (-50) (${helpLeft})`;
-  loadQuestion();
-}
-
-function loadQuestion(){
-  clearInterval(timerInterval);
-  hintBox.style.display = 'none';
-  feedbackEl.innerText = '';
-  const q = questions[currentIndex];
-  const correctText = q.options[q.answer];
-  const opts = q.options.map(o=>o).sort(()=> Math.random()-0.5);
-  qtext.innerText = `(${currentIndex+1}/${questions.length}) ${q.q}`;
-  optionsEl.innerHTML = '';
-  opts.forEach((optText, idx)=>{
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    btn.innerText = optText;
-    btn.disabled = false;
-    btn.onclick = ()=> selectOption(btn, optText, correctText);
-    optionsEl.appendChild(btn);
-  });
-  optionsEl.dataset.correct = correctText;
-  timeLeft = questionMaxTime;
-  timerEl.innerText = timeLeft;
-  progressBar.style.width = '100%';
-  questionStartTime = Date.now();
-  timerInterval = setInterval(()=> {
+  timer = setInterval(() => {
     timeLeft--;
-    if(timeLeft < 0) timeLeft = 0;
-    timerEl.innerText = timeLeft;
-    progressBar.style.width = (timeLeft / questionMaxTime * 100) + '%';
-    if(timeLeft <= 0){
-      clearInterval(timerInterval);
-      handleTimeout();
+    document.getElementById("timer").innerText = "Tiempo: " + timeLeft;
+
+    if (timeLeft === 0) {
+      clearInterval(timer);
+      nextQuestion();
     }
-  },1000);
+  }, 1000);
 }
 
-function handleTimeout(){
-  revealCorrectAndMark(null, 'timeout');
-  feedbackEl.style.color = 'var(--bad)';
-  feedbackEl.innerText = 'Se acabó el tiempo — incorrecto';
-  try{ playWrongSound(); }catch(e){}
-  navigatorVibratePattern([120,40,80]);
+function loadQuestion() {
+  document.getElementById("result").innerText = "";
+  let q = questions[current];
+
+  document.getElementById("question").innerText = q.q;
+
+  let optionsHTML = "";
+  q.options.forEach((opt, i) => {
+    optionsHTML += `<button onclick="answer(${i})">${opt}</button>`;
+  });
+
+  document.getElementById("options").innerHTML = optionsHTML;
+
+  updateProgress();
+  startTimer();
+}
+
+function answer(option) {
+  clearInterval(timer);
+  let q = questions[current];
+
+  if (option === q.correct) {
+    score += 10;
+    document.getElementById("result").innerHTML = "✅ Correcto<br>" + q.explanation;
+  } else {
+    document.getElementById("result").innerHTML = "❌ Oportunidad perdida<br>" + q.explanation;
+  }
+
+  document.getElementById("score").innerText = "Puntaje: " + score;
+
   setTimeout(nextQuestion, 1200);
 }
 
-function selectOption(btnEl, selectedText, correctText){
-  const all = optionsEl.querySelectorAll('button');
-  all.forEach(b=> b.disabled = true);
-  clearInterval(timerInterval);
-  const correct = (selectedText === correctText);
-  revealCorrectAndMark(selectedText, 'select');
-  const elapsed = (Date.now() - questionStartTime)/1000;
-  const remaining = Math.max(0, questionMaxTime - elapsed);
-  let pointsGained = 0;
-  if(correct){
-    pointsGained = Math.round(100 + (remaining / questionMaxTime) * 150);
-    score += pointsGained;
-    feedbackEl.style.color = '#0b6b4a';
-    feedbackEl.innerText = `Correcto +${pointsGained} ptos`;
-    try{ playCorrectSound(); }catch(e){}
-    navigatorVibratePattern([30,10,30]);
-  } else {
-    feedbackEl.style.color = 'var(--bad)';
-    feedbackEl.innerText = `Incorrecto`;
-    try{ playWrongSound(); }catch(e){}
-    navigatorVibratePattern([90,40,90]);
-  }
-  scoreEl.innerText = `Puntaje: ${score}`;
-  setTimeout(nextQuestion, 1000);
-}
-
-function revealCorrectAndMark(selectedText, reason){
-  const corr = optionsEl.dataset.correct;
-  const all = Array.from(optionsEl.querySelectorAll('button'));
-  all.forEach(b=>{
-    if(b.innerText === corr){
-      b.classList.add('correct');
-    } else if(selectedText && b.innerText === selectedText){
-      b.classList.add('wrong');
-    }
-  });
-}
-
-function useHelp(){
-  if(helpLeft <= 0) return;
-  helpLeft--;
-  score = Math.max(0, score - 50);
-  scoreEl.innerText = `Puntaje: ${score}`;
-  helpBtn.innerText = `Ayuda (-50) (${helpLeft})`;
-  hintBox.style.display = 'block';
-  hintBox.innerText = `Pista: ${questions[currentIndex].hint}`;
-  navigatorVibratePattern([20,10,20]);
-  try{ playSequence([{freq:600,dur:120,gain:0.05}]); } catch(e){}
-}
-
-function nextQuestion(){
-  currentIndex++;
-  if(currentIndex >= questions.length){
-    endGame();
-  } else {
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
     loadQuestion();
+  } else {
+    showFinal();
   }
 }
 
-function endGame(){
-  clearInterval(timerInterval);
-  gameEl.style.display = 'none';
-  finalEl.classList.remove('hidden');
-  finalEl.style.display = 'block';
-  document.getElementById('finalScore').innerText = `Puntaje final: ${score} pts`;
-  document.getElementById('finalTime').innerText = '';
-  try{ playFinalSound(); }catch(e){}
-  navigatorVibratePattern([40,30,40]);
+function updateProgress() {
+  let percent = (current / questions.length) * 100;
+  document.getElementById("progress").style.width = percent + "%";
 }
 
-function endEarly(){ endGame(); }
-function restart(){ location.reload(); }
+function showFinal() {
+  let mensaje = "";
 
-/* ========== BIO modal handlers ========== */
-function openBio(){
-  bioPanel.style.display = 'flex';
-  bioPanel.setAttribute('aria-hidden','false');
+  if (score >= 90) {
+    mensaje = "🌟 Nivel experto: Manejas la cortesía estratégicamente.";
+  } else if (score >= 70) {
+    mensaje = "👍 Buen nivel: Comprendes la importancia de la cortesía.";
+  } else {
+    mensaje = "⚠️ Puedes mejorar tu manejo de la cortesía.";
+  }
+
+  let premio = "";
+
+  if (score >= 70) {
+    premio = `
+    <hr>
+    <p style="font-size:14px;">
+    🎉 Felicitaciones. Llegaste hasta el final.  
+
+    Esto demuestra que valoras la forma en que te relacionas con los demás.  
+
+    📌 Muestra esta pantalla a quien te compartió el código QR.  
+    Tienes un pequeño reconocimiento por entender que la cortesía no es un detalle,  
+    sino una habilidad clave en la vida profesional.
+    </p>
+    `;
+  }
+
+  document.querySelector(".container").innerHTML = `
+    <h2>Resultado final</h2>
+    <p>${mensaje}</p>
+    <p><strong>La cortesía es el bello proceder que define tu perfil profesional.</strong></p>
+    ${premio}
+  `;
 }
-function closeBio(){
-  bioPanel.style.display = 'none';
-  bioPanel.setAttribute('aria-hidden','true');
-}
 
-/* allow clicking overlay to close */
-bioPanel.addEventListener('click', function(e){
-  if(e.target === bioPanel) closeBio();
-});
+loadQuestion();
 
-/* Safety: resume audio on any user click after activation */
-document.addEventListener('click', ()=> {
-  if(audioActivated) resumeAudioIfNeeded();
-});
 </script>
+
 </body>
 </html>
