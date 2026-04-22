@@ -3,326 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cortesía: ¿Abres o cierras puertas?</title>
+<title>Cortesía Game</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #eef2f5;
+  font-family: Arial;
+  background: linear-gradient(135deg, #f5f0e6, #e8dcc9);
   margin: 0;
-  padding: 10px;
 }
 
 .container {
   max-width: 420px;
   margin: auto;
-  background: white;
-  padding: 18px;
+  background: #fffaf3;
+  padding: 20px;
   border-radius: 15px;
-  box-shadow: 0px 0px 12px rgba(0,0,0,0.1);
-}
-
-h1 {
-  font-size: 18px;
   text-align: center;
+  animation: fadeIn 0.5s;
 }
 
-.info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
+h2 { color: #5a3e2b; }
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
 }
 
-.progress {
+button:active { transform: scale(0.95); }
+
+.btn0 { background:#a47148; }
+.btn1 { background:#c19a6b; }
+.btn2 { background:#8b5e3c; }
+.btn3 { background:#6f4e37; }
+
+.correct { background:#4caf50 !important; }
+.wrong { background:#e53935 !important; }
+
+.timerBar {
   height: 6px;
   background: #ddd;
   border-radius: 5px;
   margin: 10px 0;
 }
 
-.progress-bar {
+.timerFill {
   height: 6px;
-  background: #3498db;
-  width: 0%;
-  border-radius: 5px;
-}
-
-button {
+  background: #8b5e3c;
   width: 100%;
-  margin: 6px 0;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #3498db;
-  color: white;
-  font-size: 14px;
+  transition: width 1s linear;
 }
 
-.result {
-  margin-top: 8px;
-  font-weight: bold;
-  font-size: 14px;
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(10px);}
+  to {opacity:1; transform: translateY(0);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h1>¿Abres o cierras puertas?</h1>
-
-  <div class="info">
-    <span id="score">Puntaje: 0</span>
-    <span id="timer">Tiempo: 12</span>
-  </div>
-
-  <div class="progress">
-    <div class="progress-bar" id="progress"></div>
-  </div>
-
-  <p id="question"></p>
-  <div id="options"></div>
-  <p class="result" id="result"></p>
-</div>
+<div class="container" id="app"></div>
 
 <script>
 
 const questions = [
-  {
-    type: "mc",
-    q: "Un cliente molesto te reclama. ¿Qué haces?",
-    options: [
-      "Ignorarlo",
-      "Responder igual",
-      "Escuchar y responder con respeto",
-      "Culpar a otro"
-    ],
-    correct: 2,
-    explanation: "La cortesía en momentos difíciles genera confianza."
-  },
-  {
-    type: "vf",
-    q: "Ser cortés significa evitar conflictos siempre.",
-    options: ["Verdadero", "Falso"],
-    correct: 1,
-    explanation: "Puedes enfrentar conflictos con respeto."
-  },
-  {
-    type: "mc",
-    q: "Tu jefe se equivoca en público.",
-    options: [
-      "Corregirlo en público",
-      "Ignorar",
-      "Hablar después en privado",
-      "Criticarlo con otros"
-    ],
-    correct: 2,
-    explanation: "La cortesía protege relaciones."
-  },
-  {
-    type: "scenario",
-    q: "En una reunión alguien interrumpe constantemente.",
-    options: [
-      "Interrumpirlo también",
-      "Ignorar",
-      "Pedir la palabra con respeto",
-      "Molestarte en silencio"
-    ],
-    correct: 2,
-    explanation: "La cortesía mantiene el orden profesional."
-  },
-  {
-    type: "mc",
-    q: "Un cliente hace muchas preguntas.",
-    options: [
-      "Responder con molestia",
-      "Ignorarlo",
-      "Responder con paciencia",
-      "Evadir preguntas"
-    ],
-    correct: 2,
-    explanation: "La paciencia es parte de la cortesía."
-  },
-  {
-    type: "vf",
-    q: "Pedir disculpas te hace ver débil.",
-    options: ["Verdadero", "Falso"],
-    correct: 1,
-    explanation: "Refuerza tu profesionalismo."
-  },
-  {
-    type: "scenario",
-    q: "Un compañero falla en su tarea.",
-    options: [
-      "Exponerlo",
-      "Hablar con él en privado",
-      "Ignorarlo",
-      "Hacer su trabajo sin decir nada"
-    ],
-    correct: 1,
-    explanation: "La cortesía evita conflictos."
-  },
-  {
-    type: "mc",
-    q: "No entiendes una instrucción.",
-    options: [
-      "Improvisar",
-      "Preguntar con respeto",
-      "Ignorar",
-      "Culpar después"
-    ],
-    correct: 1,
-    explanation: "La cortesía mejora resultados."
-  },
-  {
-    type: "vf",
-    q: "La cortesía es solo apariencia.",
-    options: ["Verdadero", "Falso"],
-    correct: 1,
-    explanation: "Es una herramienta profesional."
-  },
-  {
-    type: "scenario",
-    q: "Debes dar una mala noticia.",
-    options: [
-      "Ser frío",
-      "Evitar decirlo",
-      "Decirlo con empatía",
-      "Culpar a otros"
-    ],
-    correct: 2,
-    explanation: "La empatía es clave."
-  },
-  {
-    type: "mc",
-    q: "Llegas tarde a una reunión.",
-    options: [
-      "No decir nada",
-      "Justificarte agresivamente",
-      "Disculparte",
-      "Ignorar"
-    ],
-    correct: 2,
-    explanation: "La cortesía refleja respeto."
-  },
-  {
-    type: "scenario",
-    q: "Alguien critica tu trabajo injustamente.",
-    options: [
-      "Responder agresivo",
-      "Ignorar",
-      "Responder con calma",
-      "Criticar de vuelta"
-    ],
-    correct: 2,
-    explanation: "El autocontrol es clave."
-  }
+{q:"Un cliente molesto te reclama. ¿Qué haces?",options:["Ignorarlo","Responder igual","Escuchar con respeto","Culpar"],correct:2},
+{q:"Ser cortés significa evitar conflictos siempre.",options:["Verdadero","Falso"],correct:1},
+{q:"Tu jefe se equivoca en público.",options:["Corregirlo","Ignorar","Hablar en privado","Criticar"],correct:2},
+{q:"Interrupciones constantes en reunión.",options:["Interrumpir","Ignorar","Pedir palabra","Molestarte"],correct:2},
+{q:"Cliente hace muchas preguntas.",options:["Molestarte","Ignorar","Responder con paciencia","Evadir"],correct:2},
+{q:"Pedir disculpas te hace ver débil.",options:["Verdadero","Falso"],correct:1},
+{q:"Compañero falla en tarea.",options:["Exponerlo","Hablar privado","Ignorar","Hacer su trabajo"],correct:1},
+{q:"No entiendes instrucción.",options:["Improvisar","Preguntar","Ignorar","Culpar"],correct:1},
+{q:"La cortesía es solo apariencia.",options:["Verdadero","Falso"],correct:1},
+{q:"Debes dar una mala noticia.",options:["Ser frío","Evitar","Con empatía","Culpar"],correct:2}
 ];
 
-let current = 0;
-let score = 0;
-let timeLeft = 12;
+let current=0;
+let score=0;
+let time=12;
 let timer;
 
-function startTimer() {
-  timeLeft = 12;
-  document.getElementById("timer").innerText = "Tiempo: " + timeLeft;
-
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = "Tiempo: " + timeLeft;
-
-    if (timeLeft === 0) {
-      clearInterval(timer);
-      nextQuestion();
-    }
-  }, 1000);
+function startScreen(){
+document.getElementById("app").innerHTML=`
+<h2>¿Abres o cierras puertas?</h2>
+<p style="font-size:14px;">
+La cortesía es una habilidad clave en el mundo profesional.  
+Cada decisión puede abrir oportunidades… o cerrarlas.  
+Pon a prueba tu criterio en situaciones reales.
+</p>
+<button onclick="startGame()">Comenzar</button>
+`;
 }
 
-function loadQuestion() {
-  document.getElementById("result").innerText = "";
-  let q = questions[current];
-
-  document.getElementById("question").innerText = q.q;
-
-  let optionsHTML = "";
-  q.options.forEach((opt, i) => {
-    optionsHTML += `<button onclick="answer(${i})">${opt}</button>`;
-  });
-
-  document.getElementById("options").innerHTML = optionsHTML;
-
-  updateProgress();
-  startTimer();
+function startGame(){
+current=0;
+score=0;
+nextQ();
 }
 
-function answer(option) {
-  clearInterval(timer);
-  let q = questions[current];
+function nextQ(){
+let q=questions[current];
+time=12;
 
-  if (option === q.correct) {
-    score += 10;
-    document.getElementById("result").innerHTML = "✅ Correcto<br>" + q.explanation;
-  } else {
-    document.getElementById("result").innerHTML = "❌ Oportunidad perdida<br>" + q.explanation;
-  }
+document.getElementById("app").innerHTML=`
+<p>Puntaje: ${score}</p>
 
-  document.getElementById("score").innerText = "Puntaje: " + score;
+<div class="timerBar">
+<div id="bar" class="timerFill"></div>
+</div>
 
-  setTimeout(nextQuestion, 1200);
+<p>${q.q}</p>
+
+${q.options.map((o,i)=>`
+<button class="btn${i}" onclick="answer(${i})">${o}</button>
+`).join("")}
+`;
+
+timer=setInterval(()=>{
+time--;
+document.getElementById("bar").style.width=(time/12*100)+"%";
+
+if(time<=0){
+clearInterval(timer);
+next();
+}
+},1000);
 }
 
-function nextQuestion() {
-  current++;
-  if (current < questions.length) {
-    loadQuestion();
-  } else {
-    showFinal();
-  }
+function answer(i){
+clearInterval(timer);
+
+let buttons=document.querySelectorAll("button");
+
+buttons.forEach((b,index)=>{
+if(index===questions[current].correct){
+b.classList.add("correct");
+}else if(index===i){
+b.classList.add("wrong");
+}
+});
+
+if(i===questions[current].correct){
+score+=time*10;
 }
 
-function updateProgress() {
-  let percent = (current / questions.length) * 100;
-  document.getElementById("progress").style.width = percent + "%";
+setTimeout(next,800);
 }
 
-function showFinal() {
-  let mensaje = "";
-
-  if (score >= 90) {
-    mensaje = "🌟 Nivel experto: Manejas la cortesía estratégicamente.";
-  } else if (score >= 70) {
-    mensaje = "👍 Buen nivel: Comprendes la importancia de la cortesía.";
-  } else {
-    mensaje = "⚠️ Puedes mejorar tu manejo de la cortesía.";
-  }
-
-  let premio = "";
-
-  if (score >= 70) {
-    premio = `
-    <hr>
-    <p style="font-size:14px;">
-    🎉 Felicitaciones. Llegaste hasta el final.  
-
-    Esto demuestra que valoras la forma en que te relacionas con los demás.  
-
-    📌 Muestra esta pantalla a quien te compartió el código QR.  
-    Tienes un pequeño reconocimiento por entender que la cortesía no es un detalle,  
-    sino una habilidad clave en la vida profesional.
-    </p>
-    `;
-  }
-
-  document.querySelector(".container").innerHTML = `
-    <h2>Resultado final</h2>
-    <p>${mensaje}</p>
-    <p><strong>La cortesía es el bello proceder que define tu perfil profesional.</strong></p>
-    ${premio}
-  `;
+function next(){
+current++;
+if(current<questions.length){
+nextQ();
+}else{
+end();
+}
 }
 
-loadQuestion();
+function end(){
+document.getElementById("app").innerHTML=`
+<h2>🏆 Puntaje: ${score}</h2>
+
+<p>
+Si estás dentro de los 5 puntajes más altos,  
+reclama tu paleta 🍬 mostrando esta pantalla.
+</p>
+
+<button onclick="startScreen()">Volver a jugar</button>
+`;
+}
+
+startScreen();
 
 </script>
 
