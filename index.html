@@ -6,12 +6,14 @@
 <title>Cortesía Game</title>
 
 <style>
+
 body {
   font-family: Arial;
   background: linear-gradient(135deg, #f5f0e6, #e8dcc9);
   margin: 0;
 }
 
+/* CONTENEDOR */
 .container {
   max-width: 420px;
   margin: auto;
@@ -22,8 +24,11 @@ body {
   animation: fadeIn 0.5s;
 }
 
-h2 { color: #5a3e2b; }
+h2 {
+  color: #5a3e2b;
+}
 
+/* BOTONES GENERALES */
 button {
   width: 100%;
   padding: 14px;
@@ -32,18 +37,41 @@ button {
   border-radius: 12px;
   color: white;
   font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.1s;
 }
 
-button:active { transform: scale(0.95); }
+button:active {
+  transform: scale(0.95);
+}
 
+/* BOTÓN PRINCIPAL */
+.start-btn {
+  background: #8b5e3c;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  font-size: 16px;
+  padding: 16px;
+  animation: pulse 1.5s infinite;
+}
+
+/* EFECTO LLAMATIVO */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* COLORES RESPUESTAS */
 .btn0 { background:#a47148; }
 .btn1 { background:#c19a6b; }
 .btn2 { background:#8b5e3c; }
 .btn3 { background:#6f4e37; }
 
+/* FEEDBACK */
 .correct { background:#4caf50 !important; }
 .wrong { background:#e53935 !important; }
 
+/* BARRA DE TIEMPO */
 .timerBar {
   height: 6px;
   background: #ddd;
@@ -58,10 +86,12 @@ button:active { transform: scale(0.95); }
   transition: width 1s linear;
 }
 
+/* ANIMACIÓN */
 @keyframes fadeIn {
   from {opacity:0; transform: translateY(10px);}
   to {opacity:1; transform: translateY(0);}
 }
+
 </style>
 </head>
 
@@ -75,20 +105,21 @@ const questions = [
 {q:"Un cliente molesto te reclama. ¿Qué haces?",options:["Ignorarlo","Responder igual","Escuchar con respeto","Culpar"],correct:2},
 {q:"Ser cortés significa evitar conflictos siempre.",options:["Verdadero","Falso"],correct:1},
 {q:"Tu jefe se equivoca en público.",options:["Corregirlo","Ignorar","Hablar en privado","Criticar"],correct:2},
-{q:"Interrupciones constantes en reunión.",options:["Interrumpir","Ignorar","Pedir palabra","Molestarte"],correct:2},
+{q:"Interrupciones constantes en reunión.",options:["Interrumpir","Ignorar","Pedir la palabra","Molestarte"],correct:2},
 {q:"Cliente hace muchas preguntas.",options:["Molestarte","Ignorar","Responder con paciencia","Evadir"],correct:2},
 {q:"Pedir disculpas te hace ver débil.",options:["Verdadero","Falso"],correct:1},
-{q:"Compañero falla en tarea.",options:["Exponerlo","Hablar privado","Ignorar","Hacer su trabajo"],correct:1},
-{q:"No entiendes instrucción.",options:["Improvisar","Preguntar","Ignorar","Culpar"],correct:1},
+{q:"Compañero falla en tarea.",options:["Exponerlo","Hablar en privado","Ignorar","Hacer su trabajo"],correct:1},
+{q:"No entiendes una instrucción.",options:["Improvisar","Preguntar con respeto","Ignorar","Culpar después"],correct:1},
 {q:"La cortesía es solo apariencia.",options:["Verdadero","Falso"],correct:1},
-{q:"Debes dar una mala noticia.",options:["Ser frío","Evitar","Con empatía","Culpar"],correct:2}
+{q:"Debes dar una mala noticia.",options:["Ser frío","Evitarlo","Comunicar con empatía","Culpar a otros"],correct:2}
 ];
 
-let current=0;
-let score=0;
-let time=12;
+let current = 0;
+let score = 0;
+let time = 12;
 let timer;
 
+/* PANTALLA INICIAL */
 function startScreen(){
 document.getElementById("app").innerHTML=`
 <h2>¿Abres o cierras puertas?</h2>
@@ -97,22 +128,24 @@ La cortesía es una habilidad clave en el mundo profesional.
 Cada decisión puede abrir oportunidades… o cerrarlas.  
 Pon a prueba tu criterio en situaciones reales.
 </p>
-<button onclick="startGame()">Comenzar</button>
+<button class="start-btn" onclick="startGame()">Comenzar</button>
 `;
 }
 
+/* INICIAR JUEGO */
 function startGame(){
 current=0;
 score=0;
 nextQ();
 }
 
+/* CARGAR PREGUNTA */
 function nextQ(){
 let q=questions[current];
 time=12;
 
 document.getElementById("app").innerHTML=`
-<p>Puntaje: ${score}</p>
+<p><b>Puntaje:</b> ${score}</p>
 
 <div class="timerBar">
 <div id="bar" class="timerFill"></div>
@@ -136,6 +169,7 @@ next();
 },1000);
 }
 
+/* RESPUESTA */
 function answer(i){
 clearInterval(timer);
 
@@ -150,31 +184,33 @@ b.classList.add("wrong");
 });
 
 if(i===questions[current].correct){
-score+=time*10;
+score += time * 10;
 }
 
 setTimeout(next,800);
 }
 
+/* SIGUIENTE */
 function next(){
 current++;
-if(current<questions.length){
+if(current < questions.length){
 nextQ();
 }else{
 end();
 }
 }
 
+/* FINAL */
 function end(){
 document.getElementById("app").innerHTML=`
 <h2>🏆 Puntaje: ${score}</h2>
 
-<p>
-Si estás dentro de los 5 puntajes más altos,  
+<p style="font-size:14px;">
+Si estás dentro de los <b>5 puntajes más altos</b>,  
 reclama tu paleta 🍬 mostrando esta pantalla.
 </p>
 
-<button onclick="startScreen()">Volver a jugar</button>
+<button class="start-btn" onclick="startScreen()">Volver a jugar</button>
 `;
 }
 
