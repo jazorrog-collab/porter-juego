@@ -1,396 +1,538 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+const decisions = [
 
-<title>Silicon Wars</title>
+{
+year:1995,
+title:"CPU o Costos",
+text:"Tu empresa tiene recursos limitados. ¿Qué harás?",
+choices:[
+{
+text:"Mejorar CPU",
+effect:{
+performance:15,
+innovation:5,
+market:2
+}
+},
+{
+text:"Reducir costos",
+effect:{
+money:50,
+efficiency:5,
+market:1
+}
+}
+]
+},
 
-<style>
+{
+year:1997,
+title:"GPU Dedicada",
+text:"La competencia lanza una GPU dedicada.",
+choices:[
+{
+text:"Desarrollar GPU propia",
+effect:{
+performance:10,
+innovation:10,
+market:3
+}
+},
+{
+text:"Mantener estrategia",
+effect:{
+money:40
+}
+}
+]
+},
 
-:root{
-    --primary:#1B5E20;
-    --secondary:#2E7D32;
-    --white:#FFFFFF;
-    --text:#222222;
-    --border:#D9D9D9;
+{
+year:1999,
+title:"Caché o Frecuencia",
+text:"¿Dónde invertirás?",
+choices:[
+{
+text:"Más caché",
+effect:{
+performance:10,
+efficiency:5
+}
+},
+{
+text:"Más frecuencia",
+effect:{
+performance:15,
+efficiency:-5
+}
+}
+]
+},
+
+{
+year:2001,
+title:"Nueva Fábrica",
+text:"La demanda aumenta rápidamente.",
+choices:[
+{
+text:"Construir fábrica",
+effect:{
+market:5,
+money:-100
+}
+},
+{
+text:"Subcontratar producción",
+effect:{
+money:20
+}
+}
+]
+},
+
+{
+year:2003,
+title:"Investigación",
+text:"¿Cuánto invertirás en I+D?",
+choices:[
+{
+text:"Alta inversión",
+effect:{
+innovation:15,
+money:-80
+}
+},
+{
+text:"Inversión moderada",
+effect:{
+innovation:8
+}
+}
+]
+},
+
+{
+year:2005,
+title:"Integrar Controlador de Memoria",
+text:"Nueva tendencia tecnológica.",
+choices:[
+{
+text:"Integrarlo",
+effect:{
+performance:10,
+innovation:5
+}
+},
+{
+text:"Mantener diseño actual",
+effect:{
+money:20
+}
+}
+]
+},
+
+{
+year:2007,
+title:"Nacimiento de las APUs",
+text:"AMD propone integrar CPU y GPU.",
+choices:[
+{
+text:"Apostar por APUs",
+effect:{
+innovation:20,
+market:10
+}
+},
+{
+text:"Continuar separado",
+effect:{
+performance:5
+}
+}
+]
+},
+
+{
+year:2009,
+title:"Reducir Litografía",
+text:"¿Invertir en miniaturización?",
+choices:[
+{
+text:"Sí",
+effect:{
+efficiency:15,
+innovation:10
+}
+},
+{
+text:"No",
+effect:{
+money:30
+}
+}
+]
+},
+
+{
+year:2011,
+title:"Más Núcleos o Frecuencia",
+text:"La industria cambia.",
+choices:[
+{
+text:"Más núcleos",
+effect:{
+performance:15,
+efficiency:5
+}
+},
+{
+text:"Más frecuencia",
+effect:{
+performance:20,
+efficiency:-10
+}
+}
+]
+},
+
+{
+year:2013,
+title:"Rendimiento o Eficiencia",
+text:"Debes elegir.",
+choices:[
+{
+text:"Rendimiento",
+effect:{
+performance:20
+}
+},
+{
+text:"Eficiencia",
+effect:{
+efficiency:20
+}
+}
+]
+},
+
+{
+year:2014,
+title:"System on Chip",
+text:"Integrar más componentes.",
+choices:[
+{
+text:"Crear SoC",
+effect:{
+innovation:15,
+market:10
+}
+},
+{
+text:"Mantener diseño clásico",
+effect:{
+performance:5
+}
+}
+]
+},
+
+{
+year:2015,
+title:"Mercado Móvil",
+text:"Los portátiles crecen.",
+choices:[
+{
+text:"Optimizar batería",
+effect:{
+efficiency:15,
+market:10
+}
+},
+{
+text:"Optimizar potencia",
+effect:{
+performance:15
+}
+}
+]
+},
+
+{
+year:2016,
+title:"14nm",
+text:"Nueva generación de fabricación.",
+choices:[
+{
+text:"Invertir",
+effect:{
+innovation:10,
+efficiency:10
+}
+},
+{
+text:"Esperar",
+effect:{
+money:30
+}
+}
+]
+},
+
+{
+year:2017,
+title:"7nm",
+text:"Competencia agresiva.",
+choices:[
+{
+text:"Adoptar 7nm",
+effect:{
+innovation:15,
+market:5
+}
+},
+{
+text:"Mantener nodo actual",
+effect:{
+money:20
+}
+}
+]
+},
+
+{
+year:2018,
+title:"ARM vs x86",
+text:"El mercado exige eficiencia energética.",
+choices:[
+{
+text:"Adoptar ARM",
+effect:{
+efficiency:20,
+innovation:10,
+market:15,
+performance:-5
+}
+}
+,
+{
+text:"Mantener x86",
+effect:{
+performance:20,
+market:5
+}
+}
+]
+},
+
+{
+year:2020,
+title:"Inteligencia Artificial",
+text:"La IA comienza a crecer.",
+choices:[
+{
+text:"Integrar NPU",
+effect:{
+innovation:20,
+market:15
+}
+},
+{
+text:"Ignorar IA",
+effect:{
+money:30
+}
+}
+]
+},
+
+{
+year:2021,
+title:"5nm",
+text:"La miniaturización continúa.",
+choices:[
+{
+text:"Invertir",
+effect:{
+efficiency:15,
+innovation:15
+}
+},
+{
+text:"No invertir",
+effect:{
+money:20
+}
+}
+]
+},
+
+{
+year:2022,
+title:"Gaming o IA",
+text:"¿Qué mercado priorizar?",
+choices:[
+{
+text:"Gaming",
+effect:{
+performance:15
+}
+},
+{
+text:"IA",
+effect:{
+innovation:15,
+market:10
+}
+}
+]
+},
+
+{
+year:2024,
+title:"Expansión Global",
+text:"La empresa puede expandirse.",
+choices:[
+{
+text:"Expandir",
+effect:{
+market:20
+}
+},
+{
+text:"Conservar recursos",
+effect:{
+money:40
+}
+}
+]
+},
+
+{
+year:2025,
+title:"Última Inversión",
+text:"Decisión final.",
+choices:[
+{
+text:"Litografía",
+effect:{
+innovation:10,
+efficiency:10
+}
+},
+{
+text:"Marketing",
+effect:{
+market:15
+}
+}
+]
 }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
-}
+];
 
-body{
-    background:white;
-    color:var(--text);
-}
+let currentDecision = 0;
 
-header{
-    background:var(--primary);
-    color:white;
-    text-align:center;
-    padding:20px;
-}
+function loadDecision(){
 
-header h1{
-    font-size:2rem;
-}
+const d = decisions[currentDecision];
 
-header p{
-    margin-top:10px;
-}
+document.getElementById("year").innerText = d.year;
 
-.container{
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    border:2px solid var(--primary);
-    border-radius:12px;
-    padding:15px;
-    margin-bottom:15px;
-}
-
-.card-title{
-    background:var(--primary);
-    color:white;
-    padding:10px;
-    border-radius:8px;
-    margin-bottom:10px;
-    font-weight:bold;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-}
-
-.stat{
-    border:1px solid var(--border);
-    padding:10px;
-    border-radius:8px;
-}
-
-.stat h3{
-    color:var(--primary);
-}
-
-button{
-    width:100%;
-    padding:15px;
-    margin-top:10px;
-    border:none;
-    border-radius:8px;
-    background:var(--primary);
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:var(--secondary);
-}
-
-.hidden{
-    display:none;
-}
-
-#log{
-    height:150px;
-    overflow-y:auto;
-}
-
-#log p{
-    margin-bottom:5px;
-}
-
-.choice{
-    margin-top:10px;
-}
-
-.progress{
-    width:100%;
-    height:20px;
-}
-
-@media(max-width:600px){
-
-.stats{
-grid-template-columns:1fr;
-}
-
-}
-
-</style>
-</head>
-
-<body>
-
-<audio id="clickSound">
-<source src="audio/click.mp3" type="audio/mpeg">
-</audio>
-
-<header>
-<h1>SILICON WARS</h1>
-<p>La carrera por dominar la industria de los procesadores</p>
-</header>
-
-<div class="container">
-
-<div id="menu">
-
-<div class="card">
-
-<div class="card-title">
-INICIAR PARTIDA
-</div>
-
-<p>
-Conduce una empresa de semiconductores desde 1995 hasta 2025.
-Tus decisiones determinarán el futuro de la industria.
-</p>
-
-<button onclick="startGame()">
-Nueva Partida
-</button>
-
-</div>
-
-</div>
-
-<div id="game" class="hidden">
-
-<div class="card">
-
-<div class="card-title">
-EMPRESA
-</div>
-
-<div class="stats">
-
-<div class="stat">
-Año
-<h3 id="year">1995</h3>
-</div>
-
-<div class="stat">
-Capital
-<h3 id="money">$500 M</h3>
-</div>
-
-<div class="stat">
-Mercado
-<h3 id="market">5%</h3>
-</div>
-
-<div class="stat">
-Decisión
-<h3 id="decisionCounter">1 / 20</h3>
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="card-title">
-MÉTRICAS
-</div>
-
-<p>Rendimiento</p>
-<progress id="performance" class="progress" value="30" max="100"></progress>
-
-<p>Eficiencia</p>
-<progress id="efficiency" class="progress" value="20" max="100"></progress>
-
-<p>Innovación</p>
-<progress id="innovation" class="progress" value="10" max="100"></progress>
-
-</div>
-
-<div class="card">
-
-<div class="card-title">
-DECISIÓN ACTUAL
-</div>
-
-<h3 id="question">
-Tu empresa posee recursos limitados.
-¿Dónde invertirás?
-</h3>
-
-<div id="choices">
-
-<button class="choice"
-onclick="makeChoice('cpu')">
-Mejorar CPU
-</button>
-
-<button class="choice"
-onclick="makeChoice('cost')">
-Reducir Costos
-</button>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="card-title">
-REGISTRO
-</div>
-
-<div id="log"></div>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-let year = 1995;
-let money = 500;
-let market = 5;
-
-let performance = 30;
-let efficiency = 20;
-let innovation = 10;
-
-let currentDecision = 1;
-
-function startGame(){
-
-document.getElementById("menu").classList.add("hidden");
-document.getElementById("game").classList.remove("hidden");
-
-addLog("Bienvenido CEO.");
-addLog("Comienza la carrera tecnológica.");
-
-}
-
-function updateUI(){
-
-document.getElementById("year").innerText = year;
-document.getElementById("money").innerText = "$" + money + " M";
-document.getElementById("market").innerText = market + "%";
+document.getElementById("question").innerText =
+d.text;
 
 document.getElementById("decisionCounter").innerText =
-currentDecision + " / 20";
+(currentDecision + 1) + " / 20";
 
-document.getElementById("performance").value =
-performance;
+const choicesDiv =
+document.getElementById("choices");
 
-document.getElementById("efficiency").value =
-efficiency;
+choicesDiv.innerHTML = "";
 
-document.getElementById("innovation").value =
-innovation;
+d.choices.forEach(choice => {
 
-}
+const btn =
+document.createElement("button");
 
-function addLog(text){
+btn.innerText = choice.text;
 
-const log =
-document.getElementById("log");
+btn.onclick = () => {
 
-log.innerHTML += "<p>" + text + "</p>";
-
-log.scrollTop =
-log.scrollHeight;
-
-}
-
-function makeChoice(choice){
-
-if(currentDecision === 1){
-
-if(choice === "cpu"){
-
-performance += 15;
-innovation += 5;
-
-addLog("Invertiste en mejorar la CPU.");
-addLog("El rendimiento aumenta.");
-
-}else{
-
-money += 50;
-efficiency += 5;
-
-addLog("Optimizaste costos.");
-addLog("La empresa mejora su rentabilidad.");
-
-}
-
-market += 2;
+applyEffects(choice.effect);
 
 currentDecision++;
 
-year += 2;
+if(currentDecision >= decisions.length){
 
-document.getElementById("question").innerText =
-"La competencia lanza una nueva GPU dedicada. ¿Qué harás?";
-
-document.getElementById("choices").innerHTML =
-
-`<button onclick="makeChoice('gpu')">
-Desarrollar GPU propia
-</button>
-
-<button onclick="makeChoice('save')">
-Mantener estrategia actual
-</button>`;
-
-}
-
-else if(currentDecision === 2){
-
-if(choice === "gpu"){
-
-innovation += 15;
-performance += 10;
-
-addLog("Entraste al mercado gráfico.");
+showEnding();
 
 }else{
 
-money += 40;
-
-addLog("Decidiste conservar recursos.");
+loadDecision();
 
 }
 
-market += 3;
+};
 
-currentDecision++;
+choicesDiv.appendChild(btn);
 
-year += 2;
+});
+
+}
+
+function applyEffects(effect){
+
+if(effect.performance)
+performance += effect.performance;
+
+if(effect.efficiency)
+efficiency += effect.efficiency;
+
+if(effect.innovation)
+innovation += effect.innovation;
+
+if(effect.market)
+market += effect.market;
+
+if(effect.money)
+money += effect.money;
+
+updateUI();
+
+}
+
+function showEnding(){
+
+let score =
+performance +
+efficiency +
+innovation +
+market;
+
+let text = "";
+
+if(score >= 250){
+
+text =
+"🏆 Líder tecnológico mundial";
+
+}
+else if(score >= 180){
+
+text =
+"📈 Empresa altamente competitiva";
+
+}
+else{
+
+text =
+"⚠️ La competencia te superó";
+
+}
 
 document.getElementById("question").innerText =
-"Fin de la demo. Próximamente 20 decisiones.";
+text;
 
 document.getElementById("choices").innerHTML = "";
 
 }
-
-updateUI();
-
-}
-
-updateUI();
-
-</script>
-
-</body>
-</html>
