@@ -3,93 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cortesía Game</title>
+
+<title>Silicon Wars</title>
 
 <style>
 
-body {
-  font-family: Arial;
-  background: linear-gradient(135deg, #f5f0e6, #e8dcc9);
-  margin: 0;
+:root{
+    --primary:#1B5E20;
+    --secondary:#2E7D32;
+    --white:#FFFFFF;
+    --text:#222222;
+    --border:#D9D9D9;
 }
 
-/* CONTENEDOR */
-.container {
-  max-width: 420px;
-  margin: auto;
-  background: #fffaf3;
-  padding: 20px;
-  border-radius: 15px;
-  text-align: center;
-  animation: fadeIn 0.5s;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
 }
 
-h2 {
-  color: #5a3e2b;
+body{
+    background:white;
+    color:var(--text);
 }
 
-/* BOTONES GENERALES */
-button {
-  width: 100%;
-  padding: 14px;
-  margin: 6px 0;
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-weight: bold;
-  font-size: 14px;
-  transition: transform 0.1s;
+header{
+    background:var(--primary);
+    color:white;
+    text-align:center;
+    padding:20px;
 }
 
-button:active {
-  transform: scale(0.95);
+header h1{
+    font-size:2rem;
 }
 
-/* BOTÓN PRINCIPAL */
-.start-btn {
-  background: #8b5e3c;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  font-size: 16px;
-  padding: 16px;
-  animation: pulse 1.5s infinite;
+header p{
+    margin-top:10px;
 }
 
-/* EFECTO LLAMATIVO */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
 }
 
-/* COLORES RESPUESTAS */
-.btn0 { background:#a47148; }
-.btn1 { background:#c19a6b; }
-.btn2 { background:#8b5e3c; }
-.btn3 { background:#6f4e37; }
-
-/* FEEDBACK */
-.correct { background:#4caf50 !important; }
-.wrong { background:#e53935 !important; }
-
-/* BARRA DE TIEMPO */
-.timerBar {
-  height: 6px;
-  background: #ddd;
-  border-radius: 5px;
-  margin: 10px 0;
+.card{
+    background:white;
+    border:2px solid var(--primary);
+    border-radius:12px;
+    padding:15px;
+    margin-bottom:15px;
 }
 
-.timerFill {
-  height: 6px;
-  background: #8b5e3c;
-  width: 100%;
-  transition: width 1s linear;
+.card-title{
+    background:var(--primary);
+    color:white;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+    font-weight:bold;
 }
 
-/* ANIMACIÓN */
-@keyframes fadeIn {
-  from {opacity:0; transform: translateY(10px);}
-  to {opacity:1; transform: translateY(0);}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+
+.stat{
+    border:1px solid var(--border);
+    padding:10px;
+    border-radius:8px;
+}
+
+.stat h3{
+    color:var(--primary);
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    background:var(--primary);
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:var(--secondary);
+}
+
+.hidden{
+    display:none;
+}
+
+#log{
+    height:150px;
+    overflow-y:auto;
+}
+
+#log p{
+    margin-bottom:5px;
+}
+
+.choice{
+    margin-top:10px;
+}
+
+.progress{
+    width:100%;
+    height:20px;
+}
+
+@media(max-width:600px){
+
+.stats{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
@@ -97,124 +133,262 @@ button:active {
 
 <body>
 
-<div class="container" id="app"></div>
+<audio id="clickSound">
+<source src="audio/click.mp3" type="audio/mpeg">
+</audio>
+
+<header>
+<h1>SILICON WARS</h1>
+<p>La carrera por dominar la industria de los procesadores</p>
+</header>
+
+<div class="container">
+
+<div id="menu">
+
+<div class="card">
+
+<div class="card-title">
+INICIAR PARTIDA
+</div>
+
+<p>
+Conduce una empresa de semiconductores desde 1995 hasta 2025.
+Tus decisiones determinarán el futuro de la industria.
+</p>
+
+<button onclick="startGame()">
+Nueva Partida
+</button>
+
+</div>
+
+</div>
+
+<div id="game" class="hidden">
+
+<div class="card">
+
+<div class="card-title">
+EMPRESA
+</div>
+
+<div class="stats">
+
+<div class="stat">
+Año
+<h3 id="year">1995</h3>
+</div>
+
+<div class="stat">
+Capital
+<h3 id="money">$500 M</h3>
+</div>
+
+<div class="stat">
+Mercado
+<h3 id="market">5%</h3>
+</div>
+
+<div class="stat">
+Decisión
+<h3 id="decisionCounter">1 / 20</h3>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="card-title">
+MÉTRICAS
+</div>
+
+<p>Rendimiento</p>
+<progress id="performance" class="progress" value="30" max="100"></progress>
+
+<p>Eficiencia</p>
+<progress id="efficiency" class="progress" value="20" max="100"></progress>
+
+<p>Innovación</p>
+<progress id="innovation" class="progress" value="10" max="100"></progress>
+
+</div>
+
+<div class="card">
+
+<div class="card-title">
+DECISIÓN ACTUAL
+</div>
+
+<h3 id="question">
+Tu empresa posee recursos limitados.
+¿Dónde invertirás?
+</h3>
+
+<div id="choices">
+
+<button class="choice"
+onclick="makeChoice('cpu')">
+Mejorar CPU
+</button>
+
+<button class="choice"
+onclick="makeChoice('cost')">
+Reducir Costos
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="card-title">
+REGISTRO
+</div>
+
+<div id="log"></div>
+
+</div>
+
+</div>
+
+</div>
 
 <script>
 
-const questions = [
-{q:"Un cliente molesto te reclama. ¿Qué haces?",options:["Ignorarlo","Responder igual","Escuchar con respeto","Culpar"],correct:2},
-{q:"Ser cortés significa evitar conflictos siempre.",options:["Verdadero","Falso"],correct:1},
-{q:"Tu jefe se equivoca en público.",options:["Corregirlo","Ignorar","Hablar en privado","Criticar"],correct:2},
-{q:"Interrupciones constantes en reunión.",options:["Interrumpir","Ignorar","Pedir la palabra","Molestarte"],correct:2},
-{q:"Cliente hace muchas preguntas.",options:["Molestarte","Ignorar","Responder con paciencia","Evadir"],correct:2},
-{q:"Pedir disculpas te hace ver débil.",options:["Verdadero","Falso"],correct:1},
-{q:"Compañero falla en tarea.",options:["Exponerlo","Hablar en privado","Ignorar","Hacer su trabajo"],correct:1},
-{q:"No entiendes una instrucción.",options:["Improvisar","Preguntar con respeto","Ignorar","Culpar después"],correct:1},
-{q:"La cortesía es solo apariencia.",options:["Verdadero","Falso"],correct:1},
-{q:"Debes dar una mala noticia.",options:["Ser frío","Evitarlo","Comunicar con empatía","Culpar a otros"],correct:2}
-];
+let year = 1995;
+let money = 500;
+let market = 5;
 
-let current = 0;
-let score = 0;
-let time = 12;
-let timer;
+let performance = 30;
+let efficiency = 20;
+let innovation = 10;
 
-/* PANTALLA INICIAL */
-function startScreen(){
-document.getElementById("app").innerHTML=`
-<h2>¿Abres o cierras puertas?</h2>
-<p style="font-size:14px;">
-La cortesía es una habilidad clave en el mundo profesional.  
-Cada decisión puede abrir oportunidades… o cerrarlas.  
-Pon a prueba tu criterio en situaciones reales.
-</p>
-<button class="start-btn" onclick="startGame()">Comenzar</button>
-`;
-}
+let currentDecision = 1;
 
-/* INICIAR JUEGO */
 function startGame(){
-current=0;
-score=0;
-nextQ();
+
+document.getElementById("menu").classList.add("hidden");
+document.getElementById("game").classList.remove("hidden");
+
+addLog("Bienvenido CEO.");
+addLog("Comienza la carrera tecnológica.");
+
 }
 
-/* CARGAR PREGUNTA */
-function nextQ(){
-let q=questions[current];
-time=12;
+function updateUI(){
 
-document.getElementById("app").innerHTML=`
-<p><b>Puntaje:</b> ${score}</p>
+document.getElementById("year").innerText = year;
+document.getElementById("money").innerText = "$" + money + " M";
+document.getElementById("market").innerText = market + "%";
 
-<div class="timerBar">
-<div id="bar" class="timerFill"></div>
-</div>
+document.getElementById("decisionCounter").innerText =
+currentDecision + " / 20";
 
-<p>${q.q}</p>
+document.getElementById("performance").value =
+performance;
 
-${q.options.map((o,i)=>`
-<button class="btn${i}" onclick="answer(${i})">${o}</button>
-`).join("")}
-`;
+document.getElementById("efficiency").value =
+efficiency;
 
-timer=setInterval(()=>{
-time--;
-document.getElementById("bar").style.width=(time/12*100)+"%";
+document.getElementById("innovation").value =
+innovation;
 
-if(time<=0){
-clearInterval(timer);
-next();
-}
-},1000);
 }
 
-/* RESPUESTA */
-function answer(i){
-clearInterval(timer);
+function addLog(text){
 
-let buttons=document.querySelectorAll("button");
+const log =
+document.getElementById("log");
 
-buttons.forEach((b,index)=>{
-if(index===questions[current].correct){
-b.classList.add("correct");
-}else if(index===i){
-b.classList.add("wrong");
-}
-});
+log.innerHTML += "<p>" + text + "</p>";
 
-if(i===questions[current].correct){
-score += time * 10;
+log.scrollTop =
+log.scrollHeight;
+
 }
 
-setTimeout(next,800);
-}
+function makeChoice(choice){
 
-/* SIGUIENTE */
-function next(){
-current++;
-if(current < questions.length){
-nextQ();
+if(currentDecision === 1){
+
+if(choice === "cpu"){
+
+performance += 15;
+innovation += 5;
+
+addLog("Invertiste en mejorar la CPU.");
+addLog("El rendimiento aumenta.");
+
 }else{
-end();
-}
-}
 
-/* FINAL */
-function end(){
-document.getElementById("app").innerHTML=`
-<h2>🏆 Puntaje: ${score}</h2>
+money += 50;
+efficiency += 5;
 
-<p style="font-size:14px;">
-Si estás dentro de los <b>5 puntajes más altos</b>,  
-reclama tu paleta 🍬 mostrando esta pantalla.
-</p>
+addLog("Optimizaste costos.");
+addLog("La empresa mejora su rentabilidad.");
 
-<button class="start-btn" onclick="startScreen()">Volver a jugar</button>
-`;
 }
 
-startScreen();
+market += 2;
+
+currentDecision++;
+
+year += 2;
+
+document.getElementById("question").innerText =
+"La competencia lanza una nueva GPU dedicada. ¿Qué harás?";
+
+document.getElementById("choices").innerHTML =
+
+`<button onclick="makeChoice('gpu')">
+Desarrollar GPU propia
+</button>
+
+<button onclick="makeChoice('save')">
+Mantener estrategia actual
+</button>`;
+
+}
+
+else if(currentDecision === 2){
+
+if(choice === "gpu"){
+
+innovation += 15;
+performance += 10;
+
+addLog("Entraste al mercado gráfico.");
+
+}else{
+
+money += 40;
+
+addLog("Decidiste conservar recursos.");
+
+}
+
+market += 3;
+
+currentDecision++;
+
+year += 2;
+
+document.getElementById("question").innerText =
+"Fin de la demo. Próximamente 20 decisiones.";
+
+document.getElementById("choices").innerHTML = "";
+
+}
+
+updateUI();
+
+}
+
+updateUI();
 
 </script>
 
