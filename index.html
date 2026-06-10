@@ -1,1 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silicon Wars - APU Simulator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+:root{--primary:#1B5E20;--secondary:#2E7D32;--dark:#0d2a12;--light:#ffffff;--border:#d9d9d9;}
+body{background:white;min-height:100vh;color:#222;}
+header{background:linear-gradient(90deg,var(--dark),var(--primary));color:white;padding:25px;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.2);}
+header h1{font-size:2.3rem;letter-spacing:2px;}
+header p{margin-top:10px;font-size:1rem;}
+.container{max-width:1000px;margin:auto;padding:20px;}
+.hidden{display:none;}
+.card{background:white;border:2px solid var(--primary);border-radius:15px;padding:15px;margin-bottom:15px;animation:fadeIn .4s ease;}
+.cardTitle{background:var(--primary);color:white;padding:10px;border-radius:10px;margin-bottom:15px;font-weight:bold;text-align:center;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.stat{border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+.stat h3{color:var(--primary);}
+.metric{margin-bottom:15px;}
+.metric label{display:block;font-weight:bold;margin-bottom:5px;}
+progress{width:100%;height:22px;}
+.decisionBox{animation:slideUp .5s ease;}
+#question{margin-bottom:20px;line-height:1.5;}
+.choiceBtn{width:100%;margin-bottom:10px;padding:15px;border:none;border-radius:10px;background:var(--primary);color:white;font-size:16px;cursor:pointer;transition:.25s;}
+.choiceBtn:hover{background:var(--secondary);transform:scale(1.02);}
+#log{height:180px;overflow-y:auto;}
+#log p{margin-bottom:8px;}
+.bigButton{width:100%;padding:18px;font-size:18px;background:var(--primary);color:white;border:none;border-radius:10px;cursor:pointer;}
+.bigButton:hover{background:var(--secondary);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{opacity:0;transform:translateY(25px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:768px){.stats{grid-template-columns:1fr;}header h1{font-size:1.8rem;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>SILICON WARS</h1>
+  <p>Conduce una empresa de semiconductores desde 1995 hasta 2025</p>
+</header>
+<div class="container">
+  <div id="menuScreen">
+    <div class="card">
+      <div class="cardTitle">INICIAR SIMULACION</div>
+      <p style="margin-bottom:20px;line-height:1.6">Toma decisiones estrategicas sobre:<br><br>
+        CPU, GPU, APUs, SoC, Litografia, ARM vs x86, Inteligencia Artificial.<br><br>
+        Tu objetivo es convertirte en el lider mundial de la industria tecnologica.</p>
+      <button class="bigButton" onclick="startGame()">COMENZAR PARTIDA</button>
+    </div>
+  </div>
 
+  <div id="gameScreen" class="hidden">
+    <div class="card">
+      <div class="cardTitle">ESTADO DE LA EMPRESA</div>
+      <div class="stats">
+        <div class="stat">Ano<h3 id="year">1995</h3></div>
+        <div class="stat">Capital<h3 id="money">$500 M</h3></div>
+        <div class="stat">Mercado<h3 id="market">5%</h3></div>
+        <div class="stat">Ronda<h3 id="round">1 / 20</h3></div>
+        <div class="stat">Tecnologia<h3 id="techLevel">Inicial</h3></div>
+        <div class="stat">Ranking<h3 id="ranking">#5</h3></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cardTitle">METRICAS</div>
+      <div class="metric"><label>Rendimiento</label><progress id="performance" value="25" max="100"></progress></div>
+      <div class="metric"><label>Eficiencia</label><progress id="efficiency" value="25" max="100"></progress></div>
+      <div class="metric"><label>Innovacion</label><progress id="innovation" value="20" max="100"></progress></div>
+      <div class="metric"><label>Costos</label><progress id="costs" value="60" max="100"></progress></div>
+      <div class="metric"><label>Popularidad</label><progress id="popularity" value="10" max="100"></progress></div>
+    </div>
+    <div class="card decisionBox">
+      <div class="cardTitle">DECISION ACTUAL</div>
+      <h2 id="decisionTitle">Bienvenido CEO</h2>
+      <p id="question">Preparando simulacion...</p>
+      <div id="choices"></div>
+    </div>
+    <div class="card">
+      <div class="cardTitle">REGISTRO EMPRESARIAL</div>
+      <div id="log"><p>La empresa ha sido fundada.</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var year=1995, money=500, market=5, performance=25, efficiency=25;
+var innovation=20, costs=60, popularity=10, currentDecision=0;
+var techLevel="Inicial", ranking=5;
+
+function addLog(text){
+  var log=document.getElementById("log");
+  log.innerHTML+="<p>"+text+"</p>";
+  log.scrollTop=log.scrollHeight;
+}
+
+function updateUI(){
+  document.getElementById("year").innerText=year;
+  document.getElementById("money").innerText="$"+money+" M";
+  document.getElementById("market").innerText=market+"%";
+  document.getElementById("round").innerText=(currentDecision+1)+" / 20";
+  document.getElementById("techLevel").innerText=techLevel;
+  document.getElementById("ranking").innerText="#"+ranking;
+  document.getElementById("performance").value=performance;
+  document.getElementById("efficiency").value=efficiency;
+  document.getElementById("innovation").value=innovation;
+  document.getElementById("costs").value=costs;
+  document.getElementById("popularity").value=popularity;
+}
+
+var decisions=[
+  // 1
+  {year:1995,title:"Fundacion de la empresa",question:"Cual sera la prioridad inicial?",choices:[
+    {text:"Invertir en CPU",effects:{performance:10,innovation:5}},
+    {text:"Reducir costos",effects:{costs:10,money:50}},
+    {text:"Contratar ingenieros",effects:{innovation:10}},
+    {text:"Expandir fabrica",effects:{market:5}},
+    {text:"Mejorar marketing",effects:{popularity:10}}
+  ]},
+  // 2
+  {year:1997,title:"Competencia creciente",question:"Intel domina el mercado. Que haras?",choices:[
+    {text:"Aumentar frecuencia",effects:{performance:15,efficiency:-5}},
+    {text:"Mas cache",effects:{performance:10}},
+    {text:"Reducir precios",effects:{market:8,money:-30}},
+    {text:"Invertir en I+D",effects:{innovation:12}},
+    {text:"Expandir produccion",effects:{market:5}}
+  ]},
+  // 3
+  {year:1999,title:"Nacimiento de GPUs",question:"Las graficas ganan importancia. Como respondes?",choices:[
+    {text:"Desarrollar GPU",effects:{innovation:10,market:5}},
+    {text:"Licenciar tecnologia",effects:{money:50}},
+    {text:"Ignorar mercado",effects:{performance:5}},
+    {text:"Invertir en gaming",effects:{market:8,popularity:5}},
+    {text:"Reducir costos",effects:{costs:8}}
+  ]},
+  // 4 - CORREGIDA: tenia solo year y title, faltaban question y choices
+  {year:2001,title:"Nueva Fabrica",question:"La demanda aumenta rapidamente. Donde invertiras los recursos?",choices:[
+    {text:"Construir fabrica propia",effects:{market:10,money:-100}},
+    {text:"Subcontratar produccion",effects:{money:20,efficiency:5}},
+    {text:"Invertir en portatiles",effects:{market:8}},
+    {text:"Invertir en servidores",effects:{performance:15}},
+    {text:"Reducir costos operativos",effects:{costs:10}}
+  ]},
+  // 5
+  {year:2003,title:"Investigacion",question:"Cuanto invertiras en I+D este anio?",choices:[
+    {text:"Alta inversion",effects:{innovation:15,money:-80}},
+    {text:"Inversion moderada",effects:{innovation:8}},
+    {text:"Gaming",effects:{performance:15}},
+    {text:"Portatiles",effects:{market:10}},
+    {text:"Centros de datos",effects:{money:50}}
+  ]},
+  // 6
+  {year:2005,title:"Integrar Controlador de Memoria",question:"Nueva tendencia tecnologica. La adoptas?",choices:[
+    {text:"Integrarlo",effects:{performance:10,innovation:5}},
+    {text:"Mantener diseno actual",effects:{money:20}},
+    {text:"Invertir investigacion",effects:{innovation:15}},
+    {text:"Expandir produccion",effects:{market:5}},
+    {text:"Reducir precios",effects:{market:10}}
+  ]},
+  // 7
+  {year:2007,title:"Nacimiento de las APUs",question:"AMD propone integrar CPU y GPU en un mismo chip. Que haces?",choices:[
+    {text:"Apostar por APUs",effects:{innovation:15,efficiency:10}},
+    {text:"Continuar separado",effects:{performance:5}},
+    {text:"Reducir costos",effects:{costs:10}},
+    {text:"Expandir marketing",effects:{popularity:10}},
+    {text:"Mantener proceso",effects:{money:30}}
+  ]},
+  // 8
+  {year:2009,title:"Reducir Litografia",question:"Invertir en miniaturizacion de procesos?",choices:[
+    {text:"Si, invertir",effects:{efficiency:15,innovation:10}},
+    {text:"No, conservar capital",effects:{money:30}},
+    {text:"Desarrollar ambas lineas",effects:{innovation:20,money:-50}},
+    {text:"Licenciar ARM",effects:{market:10,efficiency:10}},
+    {text:"Especializar x86",effects:{performance:20}}
+  ]},
+  // 9
+  {year:2011,title:"Mas Nucleos o Frecuencia",question:"La industria cambia. Hacia donde apuntas?",choices:[
+    {text:"Mas nucleos",effects:{performance:15,efficiency:5}},
+    {text:"Mas frecuencia",effects:{performance:20,efficiency:-10}},
+    {text:"Empresas",effects:{money:50}},
+    {text:"Portatiles",effects:{efficiency:10,market:10}},
+    {text:"Expandir produccion",effects:{market:5}}
+  ]},
+  // 10
+  {year:2013,title:"Rendimiento o Eficiencia",question:"Debes elegir la direccion de tu arquitectura.",choices:[
+    {text:"Rendimiento",effects:{performance:20}},
+    {text:"Eficiencia",effects:{efficiency:20}},
+    {text:"Equilibrar ambos",effects:{performance:10,efficiency:10}},
+    {text:"Invertir en marketing",effects:{popularity:15}},
+    {text:"Reducir costos",effects:{costs:10}}
+  ]},
+  // 11
+  {year:2014,title:"Nacimiento del SoC",question:"Ahora es posible integrar CPU, GPU, memoria y controladores en un unico chip.",choices:[
+    {text:"Crear SoC completo",effects:{innovation:20,efficiency:15,market:10}},
+    {text:"Mantener arquitectura clasica",effects:{performance:10}},
+    {text:"Invertir en portatiles",effects:{market:15}},
+    {text:"Invertir en servidores",effects:{performance:15}},
+    {text:"Reducir costos",effects:{costs:10}}
+  ]},
+  // 12
+  {year:2015,title:"Mercado movil",question:"Los smartphones dominan el mundo. Como te posicionas?",choices:[
+    {text:"Procesadores moviles",effects:{market:20,efficiency:10}},
+    {text:"Gaming",effects:{performance:15}},
+    {text:"Portatiles",effects:{market:10}},
+    {text:"Centros de datos",effects:{money:50}},
+    {text:"Mantener estrategia",effects:{money:20}}
+  ]},
+  // 13
+  {year:2016,title:"Litografia 14nm",question:"La competencia adopta procesos mas pequenos.",choices:[
+    {text:"Adoptar 14nm",effects:{efficiency:15,innovation:10}},
+    {text:"Esperar",effects:{money:40}},
+    {text:"Invertir investigacion",effects:{innovation:15}},
+    {text:"Expandir produccion",effects:{market:5}},
+    {text:"Reducir precios",effects:{market:10}}
+  ]},
+  // 14
+  {year:2017,title:"Litografia 7nm",question:"La carrera tecnologica se acelera.",choices:[
+    {text:"Invertir en 7nm",effects:{innovation:20,market:10,efficiency:15}},
+    {text:"Mejorar arquitectura",effects:{performance:15}},
+    {text:"Reducir costos",effects:{costs:10}},
+    {text:"Expandir marketing",effects:{popularity:10}},
+    {text:"Mantener proceso",effects:{money:30}}
+  ]},
+  // 15
+  {year:2018,title:"ARM vs x86",question:"Debes elegir el futuro de tus procesadores.",choices:[
+    {text:"Adoptar ARM",effects:{efficiency:25,innovation:15,market:15,performance:-5}},
+    {text:"Mantener x86",effects:{performance:25,market:5}},
+    {text:"Desarrollar ambas",effects:{innovation:20,money:-50}},
+    {text:"Licenciar ARM",effects:{market:10,efficiency:10}},
+    {text:"Especializar x86",effects:{performance:20}}
+  ]},
+  // 16
+  {year:2020,title:"Inteligencia Artificial",question:"La IA comienza a transformar la industria.",choices:[
+    {text:"Integrar NPU",effects:{innovation:25,market:15}},
+    {text:"Ignorar IA",effects:{money:50}},
+    {text:"Comprar startup IA",effects:{innovation:20}},
+    {text:"Enfocarse en gaming",effects:{performance:15}},
+    {text:"Enfocarse en servidores",effects:{money:40}}
+  ]},
+  // 17
+  {year:2021,title:"Litografia 5nm",question:"Los chips alcanzan niveles historicos de integracion.",choices:[
+    {text:"Invertir en 5nm",effects:{innovation:20,efficiency:15}},
+    {text:"Optimizar diseno actual",effects:{performance:10}},
+    {text:"Reducir costos",effects:{costs:15}},
+    {text:"Expandir mercado",effects:{market:10}},
+    {text:"Conservar recursos",effects:{money:30}}
+  ]},
+  // 18
+  {year:2022,title:"IA o Gaming",question:"Debes elegir el mercado dominante.",choices:[
+    {text:"IA",effects:{innovation:20,market:15}},
+    {text:"Gaming",effects:{performance:20}},
+    {text:"Ambos",effects:{innovation:10,market:15,performance:10}},
+    {text:"Empresas",effects:{money:50}},
+    {text:"Portatiles",effects:{efficiency:10,market:10}}
+  ]},
+  // 19
+  {year:2024,title:"Expansion global",question:"Tu empresa esta lista para dominar el mercado.",choices:[
+    {text:"Expandirse globalmente",effects:{market:25}},
+    {text:"Invertir en fabricas",effects:{market:15,money:-50}},
+    {text:"Comprar competidor",effects:{market:20,innovation:10}},
+    {text:"Reducir precios",effects:{market:15}},
+    {text:"Fortalecer marca",effects:{popularity:20}}
+  ]},
+  // 20
+  {year:2025,title:"Decision Final",question:"Ultima inversion antes de cerrar el ciclo.",choices:[
+    {text:"Litografia avanzada",effects:{innovation:20,efficiency:15}},
+    {text:"Marketing global",effects:{market:20}},
+    {text:"IA avanzada",effects:{innovation:25}},
+    {text:"Gaming extremo",effects:{performance:25}},
+    {text:"Equilibrar todo",effects:{performance:10,efficiency:10,innovation:10,market:10}}
+  ]}
+];
+
+function startGame(){
+  currentDecision=0;
+  document.getElementById("menuScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
+  addLog("La empresa inicia operaciones.");
+  loadDecision();
+}
+
+function loadDecision(){
+  var d=decisions[currentDecision];
+  year=d.year;
+  document.getElementById("year").innerText=d.year;
+  document.getElementById("decisionTitle").innerText=d.title;
+  document.getElementById("question").innerText=d.question;
+  document.getElementById("round").innerText=(currentDecision+1)+" / 20";
+  var choicesDiv=document.getElementById("choices");
+  choicesDiv.innerHTML="";
+  d.choices.forEach(function(choice){
+    var btn=document.createElement("button");
+    btn.className="choiceBtn";
+    btn.innerText=choice.text;
+    btn.onclick=(function(c){return function(){applyEffects(c);};})(choice);
+    choicesDiv.appendChild(btn);
+  });
+  updateUI();
+}
+
+function applyEffects(choice){
+  var e=choice.effects;
+  if(e.performance) performance+=e.performance;
+  if(e.efficiency)  efficiency+=e.efficiency;
+  if(e.innovation)  innovation+=e.innovation;
+  if(e.market)      market+=e.market;
+  if(e.money)       money+=e.money;
+  if(e.costs)       costs+=e.costs;
+  if(e.popularity)  popularity+=e.popularity;
+  performance=Math.max(0,Math.min(100,performance));
+  efficiency=Math.max(0,Math.min(100,efficiency));
+  innovation=Math.max(0,Math.min(100,innovation));
+  costs=Math.max(0,Math.min(100,costs));
+  popularity=Math.max(0,Math.min(100,popularity));
+  calculateRank();
+  addLog("Elegido: "+choice.text);
+  currentDecision++;
+  if(currentDecision>=decisions.length){showEnding();}
+  else{loadDecision();}
+}
+
+function calculateRank(){
+  var score=performance+efficiency+innovation+market+popularity+costs;
+  if(score>450){ranking=1;techLevel="Dominante";}
+  else if(score>380){ranking=2;techLevel="Avanzado";}
+  else if(score>320){ranking=3;techLevel="Competitivo";}
+  else if(score>260){ranking=4;techLevel="Emergente";}
+  else{ranking=5;techLevel="Basico";}
+}
+
+function showEnding(){
+  var score=performance+efficiency+innovation+market+popularity+costs;
+  var title="",text="";
+  if(score>=500){title="LIDER MUNDIAL";text="Tu empresa domina la industria de los semiconductores. Las decisiones sobre miniaturizacion, APUs, SoC, ARM e IA la convirtieron en referencia mundial.";}
+  else if(score>=420){title="POTENCIA TECNOLOGICA";text="Tu empresa es una de las mas importantes del mercado y compite directamente con los lideres mundiales.";}
+  else if(score>=340){title="EMPRESA COMPETITIVA";text="Has logrado mantener una posicion solida en el mercado.";}
+  else if(score>=250){title="EMPRESA SECUNDARIA";text="Sobreviviste en la industria pero otros fabricantes lideraron la innovacion.";}
+  else{title="QUIEBRA TECNOLOGICA";text="La competencia domino el mercado y tu empresa perdio relevancia.";}
+  document.getElementById("decisionTitle").innerText=title;
+  document.getElementById("question").innerText=text;
+  document.getElementById("choices").innerHTML="";
+  document.getElementById("round").innerText="FINAL";
+  addLog("Puntaje final: "+score);
+  addLog("Simulacion completada.");
+  updateUI();
+}
+</script>
+</body>
+</html>
